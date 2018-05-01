@@ -23,6 +23,7 @@ func mapSubexpNames(m, n []string) map[string]string {
 func badgeHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	badgeParams := vars["badgeParams"]
+	badgeStyle := r.URL.Query().Get("style")
 
 	badgeParamsPattern := regexp.MustCompile(`^(?P<subject>.+)-(?P<status>.+)-(?P<color>.+)\.svg$`)
 	matched := badgeParamsPattern.FindStringSubmatch(badgeParams)
@@ -34,7 +35,7 @@ func badgeHandler(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: Validate <color>
 	result := mapSubexpNames(matched, badgeParamsPattern.SubexpNames())
-	svgBadge, err := generateClassicBadge(result["subject"], result["status"], "#"+result["color"])
+	svgBadge, err := generateBadge(badgeStyle, result["subject"], result["status"], result["color"])
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "Internal Server Error")

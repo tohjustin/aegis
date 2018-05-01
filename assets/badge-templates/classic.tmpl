@@ -1,20 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{{.TotalWidth}}" height="20">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{{add .SubjectWidth .StatusWidth}}" height="20">
 	<linearGradient id="b" x2="0" y2="100%">
 		<stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
 		<stop offset="1" stop-opacity=".1"/>
 	</linearGradient>
 	<clipPath id="a">
-		<rect width="{{.TotalWidth}}" height="20" rx="3"/>
+		<rect width="{{add .SubjectWidth .StatusWidth}}" height="20" rx="3"/>
 	</clipPath>
 	<g clip-path="url(#a)">
 		<path fill="#555" d="M0 0h{{.SubjectWidth}}v20H0z"/>
 		<path fill="{{.Color}}" d="M{{.SubjectWidth}} 0h{{.StatusWidth}}v20H{{.SubjectWidth}}z"/>
-		<path fill="url(#b)" d="M0 0h{{.TotalWidth}}v20H0z"/>
+		<path fill="url(#b)" d="M0 0h{{add .SubjectWidth .StatusWidth}}v20H0z"/>
 	</g>
-	<g fill="#fff" font-family="Verdana,sans-serif" font-size="110">
-		<text x="{{.SubjectTextOffset}}" transform="scale(.1)" y="150" fill="#000" fill-opacity=".3" textLength="{{.SubjectTextWidth}}">{{.Subject}}</text>
-		<text x="{{.SubjectTextOffset}}" transform="scale(.1)" y="140" textLength="{{.SubjectTextWidth}}">{{.Subject}}</text>
-		<text x="{{.StatusTextOffset}}" transform="scale(.1)" y="150" fill="#000" fill-opacity=".3" textLength="{{.StatusTextWidth}}">{{.Status}}</text>
-		<text x="{{.StatusTextOffset}}" transform="scale(.1)" y="140" textLength="{{.StatusTextWidth}}">{{.Status}}</text>
+	<g fill="#fff" font-family="Verdana,sans-serif" font-size="{{multiply .FontSize 10}}">
+		<text x="{{multiply .OuterPadding 10}}" transform="scale(.1)" y="150" fill="#000" fill-opacity=".3" textLength="{{multiply .SubjectTextWidth 10}}">{{.Subject}}</text>
+		<text x="{{multiply .OuterPadding 10}}" transform="scale(.1)" y="140" textLength="{{multiply .SubjectTextWidth 10}}">{{.Subject}}</text>
+		<text x="{{multiply (add .SubjectWidth .InnerPadding) 10}}" transform="scale(.1)" y="150" fill="#000" fill-opacity=".3" textLength="{{multiply .StatusTextWidth 10}}">{{.Status}}</text>
+		<text x="{{multiply (add .SubjectWidth .InnerPadding) 10}}" transform="scale(.1)" y="140" textLength="{{multiply .StatusTextWidth 10}}">{{.Status}}</text>
 	</g>
 </svg>
