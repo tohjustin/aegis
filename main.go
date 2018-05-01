@@ -5,16 +5,45 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
+
+	"github.com/gorilla/mux"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	svgBadge, err := generateClassicBadge("Hello World", "100%", "#1896DE")
-	if err != nil {
-		fmt.Fprint(w, err)
-	} else {
-		w.Header().Set("Content-Type", "image/svg+xml;utf-8")
-		fmt.Fprint(w, svgBadge)
+func mapSubexpNames(m, n []string) map[string]string {
+	m, n = m[1:], n[1:]
+	r := make(map[string]string, len(m))
+	for i := range n {
+		r[n[i]] = m[i]
 	}
+
+	return r
+}
+
+func badgeHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	badgeParams := vars["badgeParams"]
+
+	badgeParamsPattern := regexp.MustCompile(`^(?P<subject>.+)-(?P<status>.+)-(?P<color>.+)\.svg$`)
+	matched := badgeParamsPattern.FindStringSubmatch(badgeParams)
+	if matched == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "Bad Request")
+		return
+	}
+
+	// TODO: Validate <color>
+	result := mapSubexpNames(matched, badgeParamsPattern.SubexpNames())
+	svgBadge, err := generateClassicBadge(result["subject"], result["status"], "#"+result["color"])
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "Internal Server Error")
+		return
+	}
+
+	w.Header().Set("Content-Type", "image/svg+xml;utf-8")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, svgBadge)
 }
 
 func main() {
@@ -23,8 +52,7 @@ func main() {
 		port = "8080"
 	}
 
-	http.HandleFunc("/", handler)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	}
+	r := mux.NewRouter()
+	r.HandleFunc(`/badge/{badgeParams}`, badgeHandler).Methods("GET")
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
