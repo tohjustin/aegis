@@ -14,7 +14,7 @@ func computeTextWidth(text string, fontSize int, fontFamily string) (int, error)
 	fontBinary := box.Bytes(fontFamily + ".ttf")
 	f, err := truetype.Parse(fontBinary)
 	if err != nil {
-		return 0.0, errors.New("computeTextWidth: Unable to parse \"" + fontFamily + ".ttf\"")
+		return 0.0, errors.New("unable to parse \"" + fontFamily + ".ttf\"")
 	}
 
 	textArray := []rune(text)
