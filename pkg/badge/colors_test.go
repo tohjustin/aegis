@@ -1,4 +1,4 @@
-package main
+package badge
 
 import (
 	"testing"
@@ -48,10 +48,10 @@ func TestIsValidHexColor(t *testing.T) {
 }
 
 func TestParseHexColor(t *testing.T) {
-	for colorName, hexValue := range badgeColors {
+	for colorName, hexValue := range BadgeColors {
 		assert.Equal(t, hexValue, parseHexColor(colorName))
 	}
 
 	assert.Equal(t, "#f35f35", parseHexColor("f35f35"))
-	assert.Equal(t, badgeColors["default"], parseHexColor("f35f"))
+	assert.Equal(t, BadgeColors["default"], parseHexColor("f35f"))
 }

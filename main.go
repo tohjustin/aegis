@@ -8,6 +8,7 @@ import (
 	"regexp"
 
 	"github.com/gorilla/mux"
+	"github.com/tohjustin/badger/pkg/badge"
 )
 
 func mapSubexpNames(m, n []string) map[string]string {
@@ -34,7 +35,7 @@ func badgeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result := mapSubexpNames(matched, badgeParamsPattern.SubexpNames())
-	svgBadge, err := generateBadge(badgeStyle, result["subject"], result["status"], result["color"])
+	svgBadge, err := badge.GenerateSVG(badgeStyle, result["subject"], result["status"], result["color"])
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "Internal Server Error")

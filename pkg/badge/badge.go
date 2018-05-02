@@ -1,32 +1,12 @@
-package main
+package badge
 
 import (
 	"bytes"
-	"regexp"
 	"strings"
 	"text/template"
 
 	"github.com/gobuffalo/packr"
 )
-
-const (
-	badgeTemplateDirectory = "./assets/badge-templates"
-)
-
-var badgeColors = map[string]string{
-	"blue":        "#007ec6",
-	"brightgreen": "#4c1",
-	"green":       "#97CA00",
-	"yellowgreen": "#a4a61d",
-	"yellow":      "#dfb317",
-	"orange":      "#fe7d37",
-	"red":         "#e05d44",
-	"default":     "#e05d44",
-	"grey":        "#555",
-	"gray":        "#555",
-	"lightgrey":   "#9f9f9f",
-	"lightgray":   "#9f9f9f",
-}
 
 type badge struct {
 	Subject          string
@@ -43,25 +23,7 @@ type badge struct {
 	SubjectWidth     int
 }
 
-func isValidHexColor(str string) bool {
-	hexColorPattern := regexp.MustCompile(`^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$`)
-	matched := hexColorPattern.FindStringSubmatch(str)
-	return matched != nil
-}
-
-func parseHexColor(str string) string {
-	if color := "#" + str; isValidHexColor(color) {
-		return color
-	}
-
-	if color, ok := badgeColors[str]; ok {
-		return color
-	}
-
-	return badgeColors["default"]
-}
-
-func newBadge(badgeType, subject, status, color string) (badge, error) {
+func new(badgeType, subject, status, color string) (badge, error) {
 	var svgBadge badge
 
 	switch badgeType {
@@ -109,22 +71,22 @@ func newBadge(badgeType, subject, status, color string) (badge, error) {
 	return svgBadge, nil
 }
 
-func generateBadge(badgeType, subject, status, color string) (string, error) {
-	svgBadge, err := newBadge(badgeType, subject, status, color)
+func GenerateSVG(badgeType, subject, status, color string) (string, error) {
+	newBadge, err := new(badgeType, subject, status, color)
 	if err != nil {
 		return "", err
 	}
 
-	badgeTemplate := packr.NewBox(badgeTemplateDirectory).String(svgBadge.TemplateFilename)
-	t := template.New(svgBadge.TemplateFilename)
+	badgeTemplate := packr.NewBox("./assets/badge-templates").String(newBadge.TemplateFilename)
+	t := template.New(newBadge.TemplateFilename)
 	t.Funcs(template.FuncMap{
 		"add":      func(a, b int) int { return a + b },
 		"multiply": func(a, b int) int { return a * b },
 	})
 	t.Parse(badgeTemplate)
 
-	var svgBuffer bytes.Buffer
-	err = t.Execute(&svgBuffer, svgBadge)
+	var buf bytes.Buffer
+	err = t.Execute(&buf, newBadge)
 
-	return svgBuffer.String(), err
+	return buf.String(), err
 }
