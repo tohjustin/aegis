@@ -33,7 +33,6 @@ func badgeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Validate <color>
 	result := mapSubexpNames(matched, badgeParamsPattern.SubexpNames())
 	svgBadge, err := generateBadge(badgeStyle, result["subject"], result["status"], result["color"])
 	if err != nil {
