@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var hexColorTests = []struct {
+var hexColorTestCases = []struct {
 	input  string
 	output bool
 }{
@@ -40,16 +40,17 @@ var hexColorTests = []struct {
 }
 
 func TestIsValidHexColor(t *testing.T) {
-	for _, testcase := range hexColorTests {
-		t.Run(testcase.input, func(t *testing.T) {
-			assert.Equal(t, isValidHexColor(testcase.input), testcase.output)
+	for _, testCase := range hexColorTestCases {
+		t.Run(testCase.input, func(t *testing.T) {
+			assert.Equal(t, isValidHexColor(testCase.input), testCase.output)
 		})
 	}
 }
 
 func TestParseHexColor(t *testing.T) {
-	for colorName, hexValue := range BadgeColors {
-		assert.Equal(t, hexValue, parseHexColor(colorName))
+	for input, output := range BadgeColors {
+		result := parseHexColor(input)
+		assert.Equal(t, result, output)
 	}
 
 	assert.Equal(t, "#f35f35", parseHexColor("f35f35"))

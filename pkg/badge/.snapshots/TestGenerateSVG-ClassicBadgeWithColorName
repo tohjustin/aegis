@@ -1,0 +1,14 @@
+(badge.badge) {
+  Subject: (string) (len=11) "testSubject",
+  Status: (string) (len=10) "testStatus",
+  Color: (string) (len=7) "#e05d44",
+  InnerPadding: (int) 4,
+  OuterPadding: (int) 6,
+  FontSize: (int) 11,
+  FontFamily: (string) (len=7) "Verdana",
+  TemplateFilename: (string) (len=12) "classic.tmpl",
+  StatusTextWidth: (int) 56,
+  StatusWidth: (int) 66,
+  SubjectTextWidth: (int) 63,
+  SubjectWidth: (int) 73
+}

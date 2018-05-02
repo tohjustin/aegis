@@ -1,3 +1,4 @@
+// Package badge provides functions for creating SVG badges
 package badge
 
 import (
@@ -23,7 +24,7 @@ type badge struct {
 	SubjectWidth     int
 }
 
-func new(badgeType, subject, status, color string) (badge, error) {
+func newBadge(badgeType, subject, status, color string) (badge, error) {
 	var svgBadge badge
 
 	switch badgeType {
@@ -71,8 +72,10 @@ func new(badgeType, subject, status, color string) (badge, error) {
 	return svgBadge, nil
 }
 
+// GenerateSVG generates a SVG badge based on the provided arguments
+// (badgeType, subject, status, color)
 func GenerateSVG(badgeType, subject, status, color string) (string, error) {
-	newBadge, err := new(badgeType, subject, status, color)
+	newBadge, err := newBadge(badgeType, subject, status, color)
 	if err != nil {
 		return "", err
 	}

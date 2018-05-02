@@ -15,7 +15,7 @@ func TestMeasureTextWidth(t *testing.T) {
 
 	assert.Equal(t, width, expectedLength)
 }
-func TestMeasureTextWidthWithNonExistentFont(t *testing.T) {
+func TestMeasureTextWidthWithMissingFont(t *testing.T) {
 	expectedError := "unable to parse \"UNKNOWN_FONT.ttf\""
 	_, err := computeTextWidth("Lorem ipsum dolor sit amet", 11, "UNKNOWN_FONT")
 	if err != nil {

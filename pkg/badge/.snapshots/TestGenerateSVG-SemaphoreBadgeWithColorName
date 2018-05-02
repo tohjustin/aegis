@@ -1,0 +1,14 @@
+(badge.badge) {
+  Subject: (string) (len=11) "TESTSUBJECT",
+  Status: (string) (len=10) "TESTSTATUS",
+  Color: (string) (len=7) "#007ec6",
+  InnerPadding: (int) 10,
+  OuterPadding: (int) 10,
+  FontSize: (int) 10,
+  FontFamily: (string) (len=7) "Verdana",
+  TemplateFilename: (string) (len=14) "semaphore.tmpl",
+  StatusTextWidth: (int) 64,
+  StatusWidth: (int) 84,
+  SubjectTextWidth: (int) 70,
+  SubjectWidth: (int) 90
+}
