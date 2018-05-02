@@ -29,16 +29,17 @@ func badgeHandler(w http.ResponseWriter, r *http.Request) {
 	badgeParamsPattern := regexp.MustCompile(`^(?P<subject>.+)-(?P<status>.+)-(?P<color>.+)\.svg$`)
 	matched := badgeParamsPattern.FindStringSubmatch(badgeParams)
 	if matched == nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "Bad Request")
+		errorMsg := fmt.Sprintf("Invalid URL format:\n"+
+			" - Received: \"%s\"\n"+
+			" - Expected: \"<SUBJECT>-<STATUS>-<COLOR>.svg\"", badgeParams)
+		http.Error(w, errorMsg, http.StatusBadRequest)
 		return
 	}
 
 	result := mapSubexpNames(matched, badgeParamsPattern.SubexpNames())
 	svgBadge, err := badge.GenerateSVG(badgeStyle, result["subject"], result["status"], result["color"])
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Internal Server Error")
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
