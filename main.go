@@ -55,6 +55,6 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-	r.HandleFunc(`/badge/{badgeParams}`, badgeHandler).Methods("GET")
+	r.HandleFunc(`/{badgeParams}`, badgeHandler).Methods("GET")
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
