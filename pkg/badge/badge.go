@@ -9,6 +9,14 @@ import (
 	"github.com/gobuffalo/packr"
 )
 
+// Supported badge types
+const (
+	Classic   = "classic"
+	Flat      = "flat"
+	Plastic   = "plastic"
+	Semaphore = "semaphore"
+)
+
 type badge struct {
 	Subject          string
 	Status           string
@@ -24,11 +32,33 @@ type badge struct {
 	SubjectWidth     int
 }
 
-func newBadge(badgeType, subject, status, color string) (badge, error) {
+func newBadge(badgeStyle, subject, status, color string) (badge, error) {
 	var svgBadge badge
 
-	switch badgeType {
-	case "semaphore":
+	switch badgeStyle {
+	case Flat:
+		svgBadge = badge{
+			Color:            parseHexColor(color),
+			Status:           status,
+			Subject:          subject,
+			InnerPadding:     4,
+			OuterPadding:     6,
+			FontSize:         11,
+			FontFamily:       "Verdana",
+			TemplateFilename: "flat.tmpl",
+		}
+	case Plastic:
+		svgBadge = badge{
+			Color:            parseHexColor(color),
+			Status:           status,
+			Subject:          subject,
+			InnerPadding:     4,
+			OuterPadding:     6,
+			FontSize:         11,
+			FontFamily:       "Verdana",
+			TemplateFilename: "plastic.tmpl",
+		}
+	case Semaphore:
 		svgBadge = badge{
 			Color:            parseHexColor(color),
 			Status:           strings.ToUpper(status),
@@ -39,7 +69,7 @@ func newBadge(badgeType, subject, status, color string) (badge, error) {
 			FontFamily:       "Verdana",
 			TemplateFilename: "semaphore.tmpl",
 		}
-	case "classic":
+	case Classic:
 		fallthrough
 	default:
 		svgBadge = badge{
@@ -73,9 +103,9 @@ func newBadge(badgeType, subject, status, color string) (badge, error) {
 }
 
 // GenerateSVG generates a SVG badge based on the provided arguments
-// (badgeType, subject, status, color)
-func GenerateSVG(badgeType, subject, status, color string) (string, error) {
-	newBadge, err := newBadge(badgeType, subject, status, color)
+// (badgeStyle, subject, status, color)
+func GenerateSVG(badgeStyle, subject, status, color string) (string, error) {
+	newBadge, err := newBadge(badgeStyle, subject, status, color)
 	if err != nil {
 		return "", err
 	}

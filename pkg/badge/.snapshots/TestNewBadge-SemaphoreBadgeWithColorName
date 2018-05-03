@@ -1,7 +1,7 @@
 (badge.badge) {
   Subject: (string) (len=11) "TESTSUBJECT",
   Status: (string) (len=10) "TESTSTATUS",
-  Color: (string) (len=7) "#007ec6",
+  Color: (string) (len=7) "#dfb317",
   InnerPadding: (int) 10,
   OuterPadding: (int) 10,
   FontSize: (int) 10,
