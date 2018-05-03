@@ -1,14 +1,1 @@
-(badge.badge) {
-  Subject: (string) (len=11) "TESTSUBJECT",
-  Status: (string) (len=10) "TESTSTATUS",
-  Color: (string) (len=7) "#dfb317",
-  InnerPadding: (int) 10,
-  OuterPadding: (int) 10,
-  FontSize: (int) 10,
-  FontFamily: (string) (len=7) "Verdana",
-  TemplateFilename: (string) (len=14) "semaphore.tmpl",
-  StatusTextWidth: (int) 64,
-  StatusWidth: (int) 84,
-  SubjectTextWidth: (int) 70,
-  SubjectWidth: (int) 90
-}
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="174" height="20"><clipPath id="a"><rect width="174" height="20" rx="2"/></clipPath><g clip-path="url(#a)"><path fill="#f1f1f1" d="M0 0h90v20H0z"/><path fill="#dfb317" d="M90 0h84v20H90z"/></g><g font-family="Verdana,sans-serif" font-size="90"><text fill="#888" x="100" transform="scale(.1)" y="130" textLength="700">TESTSUBJECT</text><text fill="#fff" x="1000" transform="scale(.1)" y="130" textLength="640">TESTSTATUS</text></g></svg>

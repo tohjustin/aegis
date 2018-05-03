@@ -1,14 +1,1 @@
-(badge.badge) {
-  Subject: (string) (len=11) "testSubject",
-  Status: (string) (len=10) "testStatus",
-  Color: (string) (len=7) "#97CA00",
-  InnerPadding: (int) 4,
-  OuterPadding: (int) 6,
-  FontSize: (int) 11,
-  FontFamily: (string) (len=7) "Verdana",
-  TemplateFilename: (string) (len=12) "plastic.tmpl",
-  StatusTextWidth: (int) 56,
-  StatusWidth: (int) 66,
-  SubjectTextWidth: (int) 63,
-  SubjectWidth: (int) 73
-}
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="139" height="20"><linearGradient id="b" x2="0" y2="100%"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset=".1" stop-color="#aaa" stop-opacity=".1"/><stop offset=".9" stop-color="#000" stop-opacity=".3"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient><clipPath id="a"><rect width="139" height="20" rx="3"/></clipPath><g clip-path="url(#a)"><path fill="#555" d="M0 0h73v20H0z"/><path fill="#97CA00" d="M73 0h66v20H73z"/><path fill="url(#b)" d="M0 0h139v20H0z"/></g><g fill="#fff" font-family="Verdana,sans-serif" font-size="110"><text x="60" transform="scale(.1)" y="150" fill="#000" fill-opacity=".3" textLength="630">testSubject</text><text x="60" transform="scale(.1)" y="140" textLength="630">testSubject</text><text x="770" transform="scale(.1)" y="150" fill="#000" fill-opacity=".3" textLength="560">testStatus</text><text x="770" transform="scale(.1)" y="140" textLength="560">testStatus</text></g></svg>
