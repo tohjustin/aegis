@@ -22,5 +22,14 @@ jobs:
       - checkout
 
       # specify any bash command here prefixed with `run: `
-      - run: go get -v -t -d ./...
-      - run: go test -v ./...
+      - run: 
+          name: Download dependencies
+          command: go get -v -t -d ./...
+
+      - run: 
+          name: Run Tests & Generate Test Coverage Report
+          command: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
+
+      - run: 
+          name: Upload Test Coverage Report
+          command: bash <(curl -s https://codecov.io/bash)
