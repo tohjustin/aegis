@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"regexp"
 
 	"github.com/gorilla/mux"
 	"github.com/tohjustin/badger/pkg/badge"
+	"github.com/urfave/negroni"
 )
 
 func mapSubexpNames(m, n []string) map[string]string {
@@ -54,7 +54,13 @@ func main() {
 		port = "8080"
 	}
 
-	r := mux.NewRouter()
-	r.HandleFunc(`/{badgeParams}`, badgeHandler).Methods("GET")
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	router := mux.NewRouter()
+	router.HandleFunc(`/{badgeParams}`, badgeHandler).Methods("GET")
+
+	n := negroni.New()
+	n.Use(negroni.NewRecovery())
+	n.Use(NewLogger())
+	n.UseHandler(router)
+
+	http.ListenAndServe(":"+port, n)
 }

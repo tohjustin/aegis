@@ -59,6 +59,12 @@
   version = "v1.2.1"
 
 [[projects]]
+  name = "github.com/urfave/negroni"
+  packages = ["."]
+  revision = "5dbbc83f748fc3ad38585842b0aedab546d0ea1e"
+  version = "v0.3.0"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/image"
   packages = [
@@ -70,6 +76,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3fc9beeb383bc5b00c9922e3ea1ab6d8b2ca215f6b6e3c734e0717dfe9a82535"
+  inputs-digest = "b46de91b75aa5d15dbdcd78374b392e323cbc38304868763c066719a737e4782"
   solver-name = "gps-cdcl"
   solver-version = 1
