@@ -44,3 +44,7 @@
 [prune]
   go-tests = true
   unused-packages = true
+
+[[constraint]]
+  name = "github.com/urfave/negroni"
+  revision = "dae7dc68e5a970eeecdaa7e4191e11d103cb8c1d"

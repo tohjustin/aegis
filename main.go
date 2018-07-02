@@ -59,7 +59,7 @@ func main() {
 
 	n := negroni.New()
 	n.Use(negroni.NewRecovery())
-	n.Use(NewLogger())
+	n.Use(negroni.NewLogger())
 	n.UseHandler(router)
 
 	http.ListenAndServe(":"+port, n)
