@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"log/syslog"
 	"net/http"
 	"os"
 	"regexp"
@@ -54,12 +56,25 @@ func main() {
 		port = "8080"
 	}
 
+	n := negroni.New()
+
+	// Setup recovery middleware
+	n.Use(negroni.NewRecovery())
+
+	// Setup logging middleware
+	logger := negroni.NewLogger()
+	if papertrailHost := os.Getenv("PAPERTRAIL_HOST"); papertrailHost != "" {
+		w, err := syslog.Dial("udp", papertrailHost, 0, "badger-server")
+		if err != nil {
+			log.Fatal("failed to dial syslog")
+		}
+		logger.ALogger = log.New(w, "[negroni] ", 0)
+	}
+	n.Use(logger)
+
+	// Setup routes
 	router := mux.NewRouter()
 	router.HandleFunc(`/{badgeParams}`, badgeHandler).Methods("GET")
-
-	n := negroni.New()
-	n.Use(negroni.NewRecovery())
-	n.Use(negroni.NewLogger())
 	n.UseHandler(router)
 
 	http.ListenAndServe(":"+port, n)
