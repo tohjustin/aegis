@@ -9,8 +9,16 @@ import (
 	"regexp"
 
 	"github.com/gorilla/mux"
+	"github.com/hashicorp/golang-lru"
 	"github.com/tohjustin/badger/pkg/badge"
 	"github.com/urfave/negroni"
+)
+
+const cacheSize = 5000
+const defaultPort = "8080"
+
+var (
+	svgBadgeCache *lru.Cache
 )
 
 func mapSubexpNames(m, n []string) map[string]string {
@@ -28,21 +36,27 @@ func badgeHandler(w http.ResponseWriter, r *http.Request) {
 	badgeParams := vars["badgeParams"]
 	badgeStyle := r.URL.Query().Get("style")
 
-	badgeParamsPattern := regexp.MustCompile(`^(?P<subject>.+)-(?P<status>.+)-(?P<color>.+)\.svg$`)
-	matched := badgeParamsPattern.FindStringSubmatch(badgeParams)
-	if matched == nil {
-		errorMsg := fmt.Sprintf("Invalid URL format:\n"+
-			" - Received: \"%s\"\n"+
-			" - Expected: \"<SUBJECT>-<STATUS>-<COLOR>.svg\"", badgeParams)
-		http.Error(w, errorMsg, http.StatusBadRequest)
-		return
-	}
+	svgBadge, ok := svgBadgeCache.Get(badgeParams)
+	if !ok {
+		badgeParamsPattern := regexp.MustCompile(`^(?P<subject>.+)-(?P<status>.+)-(?P<color>.+)\.svg$`)
+		matched := badgeParamsPattern.FindStringSubmatch(badgeParams)
+		if matched == nil {
+			errorMsg := fmt.Sprintf("Invalid URL format:\n"+
+				" - Received: \"%s\"\n"+
+				" - Expected: \"<SUBJECT>-<STATUS>-<COLOR>.svg\"", badgeParams)
+			http.Error(w, errorMsg, http.StatusBadRequest)
+			return
+		}
 
-	result := mapSubexpNames(matched, badgeParamsPattern.SubexpNames())
-	svgBadge, err := badge.GenerateSVG(badgeStyle, result["subject"], result["status"], result["color"])
-	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
+		result := mapSubexpNames(matched, badgeParamsPattern.SubexpNames())
+		generatedBadge, err := badge.GenerateSVG(badgeStyle, result["subject"], result["status"], result["color"])
+		if err != nil {
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		svgBadge = generatedBadge
+		svgBadgeCache.Add(badgeParams, svgBadge)
 	}
 
 	w.Header().Set("Content-Type", "image/svg+xml;utf-8")
@@ -53,7 +67,7 @@ func badgeHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = defaultPort
 	}
 
 	n := negroni.New()
@@ -63,7 +77,8 @@ func main() {
 
 	// Setup logging middleware
 	logger := negroni.NewLogger()
-	if papertrailHost := os.Getenv("PAPERTRAIL_HOST"); papertrailHost != "" {
+	papertrailHost := os.Getenv("PAPERTRAIL_HOST")
+	if papertrailHost != "" {
 		w, err := syslog.Dial("udp", papertrailHost, 0, "badger-server")
 		if err != nil {
 			log.Fatal("failed to dial syslog")
@@ -71,6 +86,9 @@ func main() {
 		logger.ALogger = log.New(w, "[negroni] ", 0)
 	}
 	n.Use(logger)
+
+	// Setup LRU cache
+	svgBadgeCache, _ = lru.New(cacheSize)
 
 	// Setup routes
 	router := mux.NewRouter()
