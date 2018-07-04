@@ -14,6 +14,8 @@ import (
 	"github.com/urfave/negroni"
 )
 
+const maxStatusLength = 40
+const maxSubjectLength = 40
 const cacheSize = 5000
 const defaultPort = "8080"
 
@@ -48,8 +50,26 @@ func badgeHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		result := mapSubexpNames(matched, badgeParamsPattern.SubexpNames())
-		generatedBadge, err := badge.GenerateSVG(badgeStyle, result["subject"], result["status"], result["color"])
+		params := mapSubexpNames(matched, badgeParamsPattern.SubexpNames())
+		if len(params["subject"]) > maxSubjectLength {
+			errorMsg := fmt.Sprintf("Max character length exceeded:\n"+
+				" - Received: \"%s\"\n"+
+				" - Expected: \"<SUBJECT>-<STATUS>-<COLOR>.svg\","+
+				" where SUBJECT is not more than %d characters long", badgeParams, maxStatusLength)
+			http.Error(w, errorMsg, http.StatusBadRequest)
+			return
+		}
+
+		if len(params["status"]) > maxStatusLength {
+			errorMsg := fmt.Sprintf("Max character length exceeded:\n"+
+				" - Received: \"%s\"\n"+
+				" - Expected: \"<SUBJECT>-<STATUS>-<COLOR>.svg\","+
+				" where STATUS is not more than %d characters long", badgeParams, maxStatusLength)
+			http.Error(w, errorMsg, http.StatusBadRequest)
+			return
+		}
+
+		generatedBadge, err := badge.GenerateSVG(badgeStyle, params["subject"], params["status"], params["color"])
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
