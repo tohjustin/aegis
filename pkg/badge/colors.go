@@ -2,6 +2,7 @@ package badge
 
 import "regexp"
 
+// BadgeColors A map between color names & their corresponding hex values
 var BadgeColors = map[string]string{
 	"blue":        "#007ec6",
 	"brightgreen": "#4c1",

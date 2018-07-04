@@ -15,14 +15,14 @@ var minifySVGTestCases = map[string]string{
 }
 
 var badgeTestCases = map[string][]string{
-	"ClassicBadgeWithColorName":      []string{"classic", "testSubject", "testStatus", "red"},
-	"ClassicBadgeWithHexColorCode":   []string{"classic", "testSubject", "testStatus", "abc"},
-	"FlatBadgeWithColorName":         []string{"flat", "testSubject", "testStatus", "blue"},
-	"FlatBadgeWithHexColorCode":      []string{"flat", "testSubject", "testStatus", "abcdef"},
-	"SemaphoreBadgeWithColorName":    []string{"semaphore", "testSubject", "testStatus", "yellow"},
-	"SemaphoreBadgeWithHexColorCode": []string{"semaphore", "testSubject", "testStatus", "abcdef"},
-	"PlasticBadgeWithColorName":      []string{"plastic", "testSubject", "testStatus", "green"},
-	"PlasticBadgeWithHexColorCode":   []string{"plastic", "testSubject", "testStatus", "abcdef"},
+	"ClassicBadgeWithColorName":      {"classic", "testSubject", "testStatus", "red"},
+	"ClassicBadgeWithHexColorCode":   {"classic", "testSubject", "testStatus", "abc"},
+	"FlatBadgeWithColorName":         {"flat", "testSubject", "testStatus", "blue"},
+	"FlatBadgeWithHexColorCode":      {"flat", "testSubject", "testStatus", "abcdef"},
+	"SemaphoreBadgeWithColorName":    {"semaphore", "testSubject", "testStatus", "yellow"},
+	"SemaphoreBadgeWithHexColorCode": {"semaphore", "testSubject", "testStatus", "abcdef"},
+	"PlasticBadgeWithColorName":      {"plastic", "testSubject", "testStatus", "green"},
+	"PlasticBadgeWithHexColorCode":   {"plastic", "testSubject", "testStatus", "abcdef"},
 }
 
 func TestMinifySVG(t *testing.T) {
