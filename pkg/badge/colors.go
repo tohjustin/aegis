@@ -2,8 +2,7 @@ package badge
 
 import "regexp"
 
-// BadgeColors A map between color names & their corresponding hex values
-var BadgeColors = map[string]string{
+var badgeColors = map[string]string{
 	"blue":        "#007ec6",
 	"brightgreen": "#4c1",
 	"green":       "#97CA00",
@@ -29,9 +28,9 @@ func parseHexColor(str string) string {
 		return color
 	}
 
-	if color, ok := BadgeColors[str]; ok {
+	if color, ok := badgeColors[str]; ok {
 		return color
 	}
 
-	return BadgeColors["default"]
+	return badgeColors["default"]
 }

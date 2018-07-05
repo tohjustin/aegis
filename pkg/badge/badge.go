@@ -1,4 +1,8 @@
-// Package badge provides functions for creating SVG badges
+// Package badge provides function(s) for creating SVG badges.
+//
+// Badge designs are based on Shields.IO's specification found in
+// https://github.com/badges/shields/blob/master/spec/SPECIFICATION.md
+//
 package badge
 
 import (
@@ -9,12 +13,12 @@ import (
 	"github.com/gobuffalo/packr"
 )
 
-// Supported badge types
+// Supported badge styles
 const (
-	Classic   = "classic"
-	Flat      = "flat"
-	Plastic   = "plastic"
-	Semaphore = "semaphore"
+	BadgeStyleClassic   = "classic"
+	BadgeStyleFlat      = "flat"
+	BadgeStylePlastic   = "plastic"
+	BadgeStyleSemaphore = "semaphore"
 )
 
 type badge struct {
@@ -32,7 +36,7 @@ type badge struct {
 	SubjectWidth     int
 }
 
-// minifySVG minifies SVG by removing newline & tab characters
+// minifies SVG by removing newline & tab characters
 func minifySVG(svg string) string {
 	result := svg
 	result = strings.Replace(result, "\n", "", -1)
@@ -40,11 +44,11 @@ func minifySVG(svg string) string {
 	return result
 }
 
-func newBadge(badgeStyle, subject, status, color string) (badge, error) {
+func newBadge(style, subject, status, color string) (badge, error) {
 	var svgBadge badge
 
-	switch badgeStyle {
-	case Flat:
+	switch style {
+	case BadgeStyleFlat:
 		svgBadge = badge{
 			Color:            parseHexColor(color),
 			Status:           status,
@@ -55,7 +59,7 @@ func newBadge(badgeStyle, subject, status, color string) (badge, error) {
 			FontFamily:       "Verdana",
 			TemplateFilename: "flat.tmpl",
 		}
-	case Plastic:
+	case BadgeStylePlastic:
 		svgBadge = badge{
 			Color:            parseHexColor(color),
 			Status:           status,
@@ -66,7 +70,7 @@ func newBadge(badgeStyle, subject, status, color string) (badge, error) {
 			FontFamily:       "Verdana",
 			TemplateFilename: "plastic.tmpl",
 		}
-	case Semaphore:
+	case BadgeStyleSemaphore:
 		svgBadge = badge{
 			Color:            parseHexColor(color),
 			Status:           strings.ToUpper(status),
@@ -77,7 +81,7 @@ func newBadge(badgeStyle, subject, status, color string) (badge, error) {
 			FontFamily:       "Verdana",
 			TemplateFilename: "semaphore.tmpl",
 		}
-	case Classic:
+	case BadgeStyleClassic:
 		fallthrough
 	default:
 		svgBadge = badge{
@@ -110,10 +114,10 @@ func newBadge(badgeStyle, subject, status, color string) (badge, error) {
 	return svgBadge, nil
 }
 
-// GenerateSVG generates a SVG badge based on the provided arguments
-// (badgeStyle, subject, status, color)
-func GenerateSVG(badgeStyle, subject, status, color string) (string, error) {
-	newBadge, err := newBadge(badgeStyle, subject, status, color)
+// GenerateSVG returns a string representation of the generated SVG badge
+//
+func GenerateSVG(style, subject, status, color string) (string, error) {
+	newBadge, err := newBadge(style, subject, status, color)
 	if err != nil {
 		return "", err
 	}

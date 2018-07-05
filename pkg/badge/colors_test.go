@@ -48,11 +48,11 @@ func TestIsValidHexColor(t *testing.T) {
 }
 
 func TestParseHexColor(t *testing.T) {
-	for input, output := range BadgeColors {
+	for input, output := range badgeColors {
 		result := parseHexColor(input)
 		assert.Equal(t, result, output)
 	}
 
 	assert.Equal(t, "#f35f35", parseHexColor("f35f35"))
-	assert.Equal(t, BadgeColors["default"], parseHexColor("f35f"))
+	assert.Equal(t, badgeColors["default"], parseHexColor("f35f"))
 }
