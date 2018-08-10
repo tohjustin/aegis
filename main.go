@@ -6,7 +6,6 @@ import (
 	"log/syslog"
 	"net/http"
 	"os"
-	"regexp"
 
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/golang-lru"
@@ -20,63 +19,45 @@ const cacheSize = 5000
 const defaultPort = "8080"
 
 var (
-	svgBadgeCache *lru.Cache
+	badgeServiceCache *lru.Cache
 )
 
-func mapSubexpNames(m, n []string) map[string]string {
-	m, n = m[1:], n[1:]
-	r := make(map[string]string, len(m))
-	for i := range n {
-		r[n[i]] = m[i]
-	}
-
-	return r
-}
-
 func badgeHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	badgeParams := vars["badgeParams"]
-	badgeStyle := r.URL.Query().Get("style")
+	routeVariables := mux.Vars(r)
+	subject, _ := routeVariables["subject"]
+	status, _ := routeVariables["status"]
+	color := routeVariables["color"]
+	style := r.URL.Query().Get("style")
 
-	svgBadge, ok := svgBadgeCache.Get(badgeParams)
+	cacheKey := subject + "/" + status + "/" + color + "?style=" + style
+	svgBadge, ok := badgeServiceCache.Get(cacheKey)
 	if !ok {
-		badgeParamsPattern := regexp.MustCompile(`^(?P<subject>.+)-(?P<status>.+)-(?P<color>.+)\.svg$`)
-		matched := badgeParamsPattern.FindStringSubmatch(badgeParams)
-		if matched == nil {
-			errorMsg := fmt.Sprintf("Invalid URL format:\n"+
-				" - Received: \"%s\"\n"+
-				" - Expected: \"<SUBJECT>-<STATUS>-<COLOR>.svg\"", badgeParams)
-			http.Error(w, errorMsg, http.StatusBadRequest)
-			return
-		}
-
-		params := mapSubexpNames(matched, badgeParamsPattern.SubexpNames())
-		if len(params["subject"]) > maxSubjectLength {
+		if len(subject) > maxSubjectLength {
 			errorMsg := fmt.Sprintf("Max character length exceeded:\n"+
 				" - Received: \"%s\"\n"+
-				" - Expected: \"<SUBJECT>-<STATUS>-<COLOR>.svg\","+
-				" where SUBJECT is not more than %d characters long", badgeParams, maxStatusLength)
+				" - Expected: \"/badge/<SUBJECT>/<STATUS>/<COLOR>\","+
+				" where SUBJECT is not more than %d characters long", subject, maxStatusLength)
 			http.Error(w, errorMsg, http.StatusBadRequest)
 			return
 		}
 
-		if len(params["status"]) > maxStatusLength {
+		if len(status) > maxStatusLength {
 			errorMsg := fmt.Sprintf("Max character length exceeded:\n"+
 				" - Received: \"%s\"\n"+
-				" - Expected: \"<SUBJECT>-<STATUS>-<COLOR>.svg\","+
-				" where STATUS is not more than %d characters long", badgeParams, maxStatusLength)
+				" - Expected: \"/badge/<SUBJECT>/<STATUS>/<COLOR>\","+
+				" where STATUS is not more than %d characters long", status, maxStatusLength)
 			http.Error(w, errorMsg, http.StatusBadRequest)
 			return
 		}
 
-		generatedBadge, err := badge.GenerateSVG(badgeStyle, params["subject"], params["status"], params["color"])
+		generatedBadge, err := badge.GenerateSVG(style, subject, status, color)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
 		svgBadge = generatedBadge
-		svgBadgeCache.Add(badgeParams, svgBadge)
+		badgeServiceCache.Add(cacheKey, svgBadge)
 	}
 
 	w.Header().Set("Content-Type", "image/svg+xml;utf-8")
@@ -108,11 +89,11 @@ func main() {
 	n.Use(logger)
 
 	// Setup LRU cache
-	svgBadgeCache, _ = lru.New(cacheSize)
+	badgeServiceCache, _ = lru.New(cacheSize)
 
 	// Setup routes
 	router := mux.NewRouter()
-	router.HandleFunc(`/{badgeParams}`, badgeHandler).Methods("GET")
+	router.HandleFunc(`/badge/{subject}/{status}/{color}`, badgeHandler).Methods("GET")
 	n.UseHandler(router)
 
 	http.ListenAndServe(":"+port, n)
