@@ -5,6 +5,7 @@ import (
 	"log"
 	"log/syslog"
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/gorilla/mux"
@@ -24,8 +25,8 @@ var (
 
 func badgeHandler(w http.ResponseWriter, r *http.Request) {
 	routeVariables := mux.Vars(r)
-	subject, _ := routeVariables["subject"]
-	status, _ := routeVariables["status"]
+	subject, _ := url.PathUnescape(routeVariables["subject"])
+	status, _ := url.PathUnescape(routeVariables["status"])
 	color := routeVariables["color"]
 	style := r.URL.Query().Get("style")
 
@@ -93,6 +94,7 @@ func main() {
 
 	// Setup routes
 	router := mux.NewRouter()
+	router.UseEncodedPath()
 	router.HandleFunc(`/badge/{subject}/{status}/{color}`, badgeHandler).Methods("GET")
 	n.UseHandler(router)
 
