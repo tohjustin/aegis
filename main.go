@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-	"log/syslog"
 	"net/http"
 	"os"
 
@@ -30,17 +28,7 @@ func main() {
 
 	// setup middlewares
 	n := negroni.New()
-	logger := negroni.NewLogger()
-	if logEndpoint != "" {
-		w, err := syslog.Dial("udp", logEndpoint, 0, "badger-server")
-		if err != nil {
-			log.Fatal("Failed to dial syslog at: ", logEndpoint)
-			return
-		}
-
-		logger.ALogger = log.New(w, "[negroni] ", 0)
-	}
-	n.Use(logger)
+	n.Use(newLoggerMiddleware(logEndpoint))
 	n.Use(newRecoveryMiddleware())
 	n.UseHandler(mux)
 
