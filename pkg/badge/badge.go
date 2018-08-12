@@ -50,7 +50,7 @@ func newBadge(style, subject, status, color string) (badge, error) {
 	switch style {
 	case BadgeStyleFlat:
 		svgBadge = badge{
-			Color:            parseHexColor(color),
+			Color:            parseColor(color),
 			Status:           status,
 			Subject:          subject,
 			InnerPadding:     4,
@@ -61,7 +61,7 @@ func newBadge(style, subject, status, color string) (badge, error) {
 		}
 	case BadgeStylePlastic:
 		svgBadge = badge{
-			Color:            parseHexColor(color),
+			Color:            parseColor(color),
 			Status:           status,
 			Subject:          subject,
 			InnerPadding:     4,
@@ -72,7 +72,7 @@ func newBadge(style, subject, status, color string) (badge, error) {
 		}
 	case BadgeStyleSemaphore:
 		svgBadge = badge{
-			Color:            parseHexColor(color),
+			Color:            parseColor(color),
 			Status:           strings.ToUpper(status),
 			Subject:          strings.ToUpper(subject),
 			InnerPadding:     10,
@@ -85,7 +85,7 @@ func newBadge(style, subject, status, color string) (badge, error) {
 		fallthrough
 	default:
 		svgBadge = badge{
-			Color:            parseHexColor(color),
+			Color:            parseColor(color),
 			Status:           status,
 			Subject:          subject,
 			InnerPadding:     4,

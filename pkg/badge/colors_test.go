@@ -39,6 +39,16 @@ var hexColorTestCases = []struct {
 	{"#FFffFF", true},
 }
 
+var cssColorTestCases = []struct {
+	input  string
+	output bool
+}{
+	{"red", true},            // CSS Level 1
+	{"orange", true},         // CSS Level 2
+	{"orchid", true},         // CSS Level 3
+	{"rebeccapurple", false}, // CSS Level 4 (not supported)
+}
+
 func TestIsValidHexColor(t *testing.T) {
 	for _, testCase := range hexColorTestCases {
 		t.Run(testCase.input, func(t *testing.T) {
@@ -47,12 +57,19 @@ func TestIsValidHexColor(t *testing.T) {
 	}
 }
 
-func TestParseHexColor(t *testing.T) {
-	for input, output := range badgeColors {
-		result := parseHexColor(input)
+func TestIsValidCSSColorName(t *testing.T) {
+	for _, testCase := range cssColorTestCases {
+		t.Run(testCase.input, func(t *testing.T) {
+			assert.Equal(t, isValidCSSColorName(testCase.input), testCase.output)
+		})
+	}
+}
+func TestparseColor(t *testing.T) {
+	for input, output := range cssColorNames {
+		result := parseColor(input)
 		assert.Equal(t, result, output)
 	}
 
-	assert.Equal(t, "#f35f35", parseHexColor("f35f35"))
-	assert.Equal(t, badgeColors["default"], parseHexColor("f35f"))
+	assert.Equal(t, "#f35f35", parseColor("f35f35"))
+	assert.Equal(t, defaultColor, parseColor("f35f"))
 }
