@@ -1,6 +1,6 @@
-<svg height="20" width="{{add .SubjectWidth .StatusWidth}}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
+<svg height="20" width="{{.TotalWidth}}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
 	<clipPath id="a">
-		<rect height="20" width="{{add .SubjectWidth .StatusWidth}}" rx="2"/>
+		<rect height="20" width="{{.TotalWidth}}" rx="2"/>
 	</clipPath>
 	<g clip-path="url(#a)">
 		<path d="M0 0h{{.SubjectWidth}}v20H0z" fill="#f1f1f1"/>

@@ -38,6 +38,7 @@ type badge struct {
 	SubjectTextWidth int
 	SubjectWidth     int
 	TemplateFilename string
+	TotalWidth       int
 }
 
 // minifies SVG by removing newline & tab characters
@@ -126,6 +127,8 @@ func newBadge(style, subject, status, color string) (badge, error) {
 	svgBadge.StatusTextWidth = statusTextWidth
 	svgBadge.StatusWidth = svgBadge.PaddingInner + statusTextWidth + svgBadge.PaddingOuter
 
+	svgBadge.TotalWidth = svgBadge.SubjectWidth + svgBadge.StatusWidth
+
 	return svgBadge, nil
 }
 
@@ -140,7 +143,6 @@ func GenerateSVG(style, subject, status, color string) (string, error) {
 	badgeSVGTemplate := packr.NewBox("./assets/badge-templates").String(newBadge.TemplateFilename)
 	t := template.New(newBadge.TemplateFilename)
 	t.Funcs(template.FuncMap{
-		"add":      func(a, b int) int { return a + b },
 		"multiply": func(a, b int) int { return a * b },
 	})
 	t.Parse(badgeSVGTemplate)
