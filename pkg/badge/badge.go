@@ -142,9 +142,6 @@ func GenerateSVG(style, subject, status, color string) (string, error) {
 
 	badgeSVGTemplate := packr.NewBox("./assets/badge-templates").String(newBadge.TemplateFilename)
 	t := template.New(newBadge.TemplateFilename)
-	t.Funcs(template.FuncMap{
-		"multiply": func(a, b int) int { return a * b },
-	})
 	t.Parse(badgeSVGTemplate)
 
 	var buf bytes.Buffer
