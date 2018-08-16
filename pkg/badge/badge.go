@@ -22,18 +22,20 @@ const (
 )
 
 type badge struct {
-	Subject          string
-	Status           string
 	Color            string
-	InnerPadding     int
-	OuterPadding     int
-	FontSize         int
 	FontFamily       string
-	TemplateFilename string
+	FontSize         int
+	PaddingInner     int
+	PaddingOuter     int
+	Status           string
+	StatusOffset     int
 	StatusTextWidth  int
 	StatusWidth      int
+	Subject          string
+	SubjectOffset    int
 	SubjectTextWidth int
 	SubjectWidth     int
+	TemplateFilename string
 }
 
 // minifies SVG by removing newline & tab characters
@@ -51,34 +53,34 @@ func newBadge(style, subject, status, color string) (badge, error) {
 	case BadgeStyleFlat:
 		svgBadge = badge{
 			Color:            parseColor(color),
+			FontFamily:       "Verdana",
+			FontSize:         11,
+			PaddingInner:     4,
+			PaddingOuter:     6,
 			Status:           status,
 			Subject:          subject,
-			InnerPadding:     4,
-			OuterPadding:     6,
-			FontSize:         11,
-			FontFamily:       "Verdana",
 			TemplateFilename: "flat.tmpl",
 		}
 	case BadgeStylePlastic:
 		svgBadge = badge{
 			Color:            parseColor(color),
+			FontFamily:       "Verdana",
+			FontSize:         11,
+			PaddingInner:     4,
+			PaddingOuter:     6,
 			Status:           status,
 			Subject:          subject,
-			InnerPadding:     4,
-			OuterPadding:     6,
-			FontSize:         11,
-			FontFamily:       "Verdana",
 			TemplateFilename: "plastic.tmpl",
 		}
 	case BadgeStyleSemaphore:
 		svgBadge = badge{
 			Color:            parseColor(color),
+			FontFamily:       "Verdana",
+			FontSize:         9,
+			PaddingInner:     10,
+			PaddingOuter:     10,
 			Status:           strings.ToUpper(status),
 			Subject:          strings.ToUpper(subject),
-			InnerPadding:     10,
-			OuterPadding:     10,
-			FontSize:         10,
-			FontFamily:       "Verdana",
 			TemplateFilename: "semaphore.tmpl",
 		}
 	case BadgeStyleClassic:
@@ -86,12 +88,12 @@ func newBadge(style, subject, status, color string) (badge, error) {
 	default:
 		svgBadge = badge{
 			Color:            parseColor(color),
+			FontFamily:       "Verdana",
+			FontSize:         11,
+			PaddingInner:     4,
+			PaddingOuter:     6,
 			Status:           status,
 			Subject:          subject,
-			InnerPadding:     4,
-			OuterPadding:     6,
-			FontSize:         11,
-			FontFamily:       "Verdana",
 			TemplateFilename: "classic.tmpl",
 		}
 	}
@@ -106,10 +108,13 @@ func newBadge(style, subject, status, color string) (badge, error) {
 		return svgBadge, err
 	}
 
-	svgBadge.SubjectWidth = subjectTextWidth + svgBadge.OuterPadding + svgBadge.InnerPadding
-	svgBadge.StatusWidth = statusTextWidth + svgBadge.OuterPadding + svgBadge.InnerPadding
+	svgBadge.SubjectOffset = svgBadge.PaddingOuter
 	svgBadge.SubjectTextWidth = subjectTextWidth
+	svgBadge.SubjectWidth = svgBadge.SubjectOffset + subjectTextWidth + svgBadge.PaddingInner
+
+	svgBadge.StatusOffset = svgBadge.SubjectWidth + svgBadge.PaddingInner
 	svgBadge.StatusTextWidth = statusTextWidth
+	svgBadge.StatusWidth = svgBadge.PaddingInner + statusTextWidth + svgBadge.PaddingOuter
 
 	return svgBadge, nil
 }

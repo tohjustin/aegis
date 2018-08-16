@@ -8,9 +8,9 @@
 		<path fill="url(#b)" d="M0 0h{{add .SubjectWidth .StatusWidth}}v20H0z"/>
 	</g>
 	<g fill="#fff" font-family="Verdana,sans-serif" font-size="{{multiply .FontSize 10}}">
-		<text x="{{multiply .OuterPadding 10}}" transform="scale(.1)" y="150" fill="#000" fill-opacity=".3" textLength="{{multiply .SubjectTextWidth 10}}">{{.Subject}}</text>
-		<text x="{{multiply .OuterPadding 10}}" transform="scale(.1)" y="140" textLength="{{multiply .SubjectTextWidth 10}}">{{.Subject}}</text>
-		<text x="{{multiply (add .SubjectWidth .InnerPadding) 10}}" transform="scale(.1)" y="150" fill="#000" fill-opacity=".3" textLength="{{multiply .StatusTextWidth 10}}">{{.Status}}</text>
-		<text x="{{multiply (add .SubjectWidth .InnerPadding) 10}}" transform="scale(.1)" y="140" textLength="{{multiply .StatusTextWidth 10}}">{{.Status}}</text>
+		<text x="{{multiply .SubjectOffset 10}}" transform="scale(.1)" y="150" fill="#000" fill-opacity=".3" textLength="{{multiply .SubjectTextWidth 10}}">{{.Subject}}</text>
+		<text x="{{multiply .SubjectOffset 10}}" transform="scale(.1)" y="140" textLength="{{multiply .SubjectTextWidth 10}}">{{.Subject}}</text>
+		<text x="{{multiply .StatusOffset 10}}" transform="scale(.1)" y="150" fill="#000" fill-opacity=".3" textLength="{{multiply .StatusTextWidth 10}}">{{.Status}}</text>
+		<text x="{{multiply .StatusOffset 10}}" transform="scale(.1)" y="140" textLength="{{multiply .StatusTextWidth 10}}">{{.Status}}</text>
 	</g>
 </svg>
