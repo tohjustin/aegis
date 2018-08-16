@@ -14,5 +14,6 @@
   SubjectOffset: (int) 6,
   SubjectTextWidth: (int) 63,
   SubjectWidth: (int) 73,
-  TemplateFilename: (string) (len=12) "classic.tmpl"
+  TemplateFilename: (string) (len=12) "classic.tmpl",
+  TotalWidth: (int) 139
 }
