@@ -28,10 +28,12 @@ type badge struct {
 	PaddingInner     int
 	PaddingOuter     int
 	Status           string
+	StatusFontColor  string
 	StatusOffset     int
 	StatusTextWidth  int
 	StatusWidth      int
 	Subject          string
+	SubjectFontColor string
 	SubjectOffset    int
 	SubjectTextWidth int
 	SubjectWidth     int
@@ -58,7 +60,9 @@ func newBadge(style, subject, status, color string) (badge, error) {
 			PaddingInner:     4,
 			PaddingOuter:     6,
 			Status:           status,
+			StatusFontColor:  "#fff",
 			Subject:          subject,
+			SubjectFontColor: "#fff",
 			TemplateFilename: "flat.tmpl",
 		}
 	case BadgeStylePlastic:
@@ -69,7 +73,9 @@ func newBadge(style, subject, status, color string) (badge, error) {
 			PaddingInner:     4,
 			PaddingOuter:     6,
 			Status:           status,
+			StatusFontColor:  "#fff",
 			Subject:          subject,
+			SubjectFontColor: "#fff",
 			TemplateFilename: "plastic.tmpl",
 		}
 	case BadgeStyleSemaphore:
@@ -80,7 +86,9 @@ func newBadge(style, subject, status, color string) (badge, error) {
 			PaddingInner:     10,
 			PaddingOuter:     10,
 			Status:           strings.ToUpper(status),
+			StatusFontColor:  "#fff",
 			Subject:          strings.ToUpper(subject),
+			SubjectFontColor: "#888",
 			TemplateFilename: "semaphore.tmpl",
 		}
 	case BadgeStyleClassic:
@@ -93,7 +101,9 @@ func newBadge(style, subject, status, color string) (badge, error) {
 			PaddingInner:     4,
 			PaddingOuter:     6,
 			Status:           status,
+			StatusFontColor:  "#fff",
 			Subject:          subject,
+			SubjectFontColor: "#fff",
 			TemplateFilename: "classic.tmpl",
 		}
 	}
