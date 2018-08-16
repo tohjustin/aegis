@@ -6,8 +6,8 @@
 		<path fill="#f1f1f1" d="M0 0h{{.SubjectWidth}}v20H0z"/>
 		<path fill="{{.Color}}" d="M{{.SubjectWidth}} 0h{{.StatusWidth}}v20H{{.SubjectWidth}}z"/>
 	</g>
-	<g font-family="Verdana,sans-serif" font-size="{{multiply (add .FontSize -1) 10}}">
-		<text fill="#888" x="{{multiply .OuterPadding 10}}" transform="scale(.1)" y="130" textLength="{{multiply .SubjectTextWidth 10}}">{{.Subject}}</text>
-		<text fill="#fff" x="{{multiply (add .SubjectWidth .InnerPadding) 10}}" transform="scale(.1)" y="130" textLength="{{multiply .StatusTextWidth 10}}">{{.Status}}</text>
+	<g font-family="Verdana,sans-serif" font-size="{{multiply .FontSize 10}}">
+		<text x="{{multiply .SubjectOffset 10}}" transform="scale(.1)" y="130" fill="#888" textLength="{{multiply .SubjectTextWidth 10}}">{{.Subject}}</text>
+		<text x="{{multiply .StatusOffset 10}}" transform="scale(.1)" y="130" fill="#fff" textLength="{{multiply .StatusTextWidth 10}}">{{.Status}}</text>
 	</g>
 </svg>
