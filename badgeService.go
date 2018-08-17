@@ -40,9 +40,10 @@ func badgeServiceHandler(w http.ResponseWriter, r *http.Request) {
 	subject, _ := url.PathUnescape(routeVariables["subject"])
 	status, _ := url.PathUnescape(routeVariables["status"])
 	color := routeVariables["color"]
+	icon := r.URL.Query().Get("icon")
 	style := r.URL.Query().Get("style")
 
-	cacheKey := subject + "/" + status + "/" + color + "?style=" + style
+	cacheKey := subject + "/" + status + "/" + color + "?icon=" + icon + "?style=" + style
 	svgBadge, ok := badgeServiceCache.Get(cacheKey)
 	if !ok {
 		if len(subject) > maxSubjectLength {
@@ -57,7 +58,7 @@ func badgeServiceHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		generatedBadge, err := badge.GenerateSVG(style, subject, status, color)
+		generatedBadge, err := badge.GenerateSVG(style, subject, status, color, icon)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
