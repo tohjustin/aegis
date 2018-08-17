@@ -7,6 +7,7 @@ package badge
 
 import (
 	"bytes"
+	"encoding/base64"
 	"strings"
 	"text/template"
 
@@ -21,19 +22,34 @@ const (
 	BadgeStyleSemaphore = "semaphore"
 )
 
+// Icon dimensions
+const (
+	IconSize    = 13
+	IconPadding = 3
+	IconOffset  = IconPadding + IconSize
+)
+
 type badge struct {
-	Subject          string
-	Status           string
 	Color            string
-	InnerPadding     int
-	OuterPadding     int
-	FontSize         int
 	FontFamily       string
-	TemplateFilename string
+	FontSize         int
+	IconBase64Str    string
+	IconEnabled      bool
+	IconOffset       int
+	PaddingInner     int
+	PaddingOuter     int
+	Status           string
+	StatusFontColor  string
+	StatusOffset     int
 	StatusTextWidth  int
 	StatusWidth      int
+	Subject          string
+	SubjectFontColor string
+	SubjectOffset    int
 	SubjectTextWidth int
 	SubjectWidth     int
+	TemplateFilename string
+	TotalWidth       int
 }
 
 // minifies SVG by removing newline & tab characters
@@ -44,54 +60,62 @@ func minifySVG(svg string) string {
 	return result
 }
 
-func newBadge(style, subject, status, color string) (badge, error) {
+func newBadge(style, subject, status, color, icon string) (badge, error) {
 	var svgBadge badge
 
 	switch style {
 	case BadgeStyleFlat:
 		svgBadge = badge{
-			Color:            parseHexColor(color),
-			Status:           status,
-			Subject:          subject,
-			InnerPadding:     4,
-			OuterPadding:     6,
-			FontSize:         11,
+			Color:            parseColor(color),
 			FontFamily:       "Verdana",
+			FontSize:         11,
+			PaddingInner:     4,
+			PaddingOuter:     6,
+			Status:           status,
+			StatusFontColor:  "#fff",
+			Subject:          subject,
+			SubjectFontColor: "#fff",
 			TemplateFilename: "flat.tmpl",
 		}
 	case BadgeStylePlastic:
 		svgBadge = badge{
-			Color:            parseHexColor(color),
-			Status:           status,
-			Subject:          subject,
-			InnerPadding:     4,
-			OuterPadding:     6,
-			FontSize:         11,
+			Color:            parseColor(color),
 			FontFamily:       "Verdana",
+			FontSize:         11,
+			PaddingInner:     4,
+			PaddingOuter:     6,
+			Status:           status,
+			StatusFontColor:  "#fff",
+			Subject:          subject,
+			SubjectFontColor: "#fff",
 			TemplateFilename: "plastic.tmpl",
 		}
 	case BadgeStyleSemaphore:
 		svgBadge = badge{
-			Color:            parseHexColor(color),
-			Status:           strings.ToUpper(status),
-			Subject:          strings.ToUpper(subject),
-			InnerPadding:     10,
-			OuterPadding:     10,
-			FontSize:         10,
+			Color:            parseColor(color),
 			FontFamily:       "Verdana",
+			FontSize:         9,
+			PaddingInner:     10,
+			PaddingOuter:     10,
+			Status:           strings.ToUpper(status),
+			StatusFontColor:  "#fff",
+			Subject:          strings.ToUpper(subject),
+			SubjectFontColor: "#888",
 			TemplateFilename: "semaphore.tmpl",
 		}
 	case BadgeStyleClassic:
 		fallthrough
 	default:
 		svgBadge = badge{
-			Color:            parseHexColor(color),
-			Status:           status,
-			Subject:          subject,
-			InnerPadding:     4,
-			OuterPadding:     6,
-			FontSize:         11,
+			Color:            parseColor(color),
 			FontFamily:       "Verdana",
+			FontSize:         11,
+			PaddingInner:     4,
+			PaddingOuter:     6,
+			Status:           status,
+			StatusFontColor:  "#fff",
+			Subject:          subject,
+			SubjectFontColor: "#fff",
 			TemplateFilename: "classic.tmpl",
 		}
 	}
@@ -106,18 +130,35 @@ func newBadge(style, subject, status, color string) (badge, error) {
 		return svgBadge, err
 	}
 
-	svgBadge.SubjectWidth = subjectTextWidth + svgBadge.OuterPadding + svgBadge.InnerPadding
-	svgBadge.StatusWidth = statusTextWidth + svgBadge.OuterPadding + svgBadge.InnerPadding
+	if icon != "" {
+		svgIcon, err := packr.NewBox("./assets/icons/").MustString(icon + ".svg")
+		if err == nil {
+			// Set SVG icon color to match `svgBadge.SubjectFontColor`,
+			// We'll include font-awesome's license into the base64-encoded result
+			modifiedSvgIcon := "<svg fill=\"" + svgBadge.SubjectFontColor + "\"" + svgIcon[len("<svg"):]
+			svgBadge.IconBase64Str = base64.StdEncoding.EncodeToString([]byte(modifiedSvgIcon))
+			svgBadge.IconEnabled = true
+			svgBadge.IconOffset = IconOffset
+		}
+	}
+
+	svgBadge.SubjectOffset = svgBadge.PaddingOuter + svgBadge.IconOffset
 	svgBadge.SubjectTextWidth = subjectTextWidth
+	svgBadge.SubjectWidth = svgBadge.SubjectOffset + subjectTextWidth + svgBadge.PaddingInner
+
+	svgBadge.StatusOffset = svgBadge.SubjectWidth + svgBadge.PaddingInner
 	svgBadge.StatusTextWidth = statusTextWidth
+	svgBadge.StatusWidth = svgBadge.PaddingInner + statusTextWidth + svgBadge.PaddingOuter
+
+	svgBadge.TotalWidth = svgBadge.SubjectWidth + svgBadge.StatusWidth
 
 	return svgBadge, nil
 }
 
 // GenerateSVG returns a string representation of the generated SVG badge
 //
-func GenerateSVG(style, subject, status, color string) (string, error) {
-	newBadge, err := newBadge(style, subject, status, color)
+func GenerateSVG(style, subject, status, color, icon string) (string, error) {
+	newBadge, err := newBadge(style, subject, status, color, icon)
 	if err != nil {
 		return "", err
 	}
@@ -125,7 +166,6 @@ func GenerateSVG(style, subject, status, color string) (string, error) {
 	badgeSVGTemplate := packr.NewBox("./assets/badge-templates").String(newBadge.TemplateFilename)
 	t := template.New(newBadge.TemplateFilename)
 	t.Funcs(template.FuncMap{
-		"add":      func(a, b int) int { return a + b },
 		"multiply": func(a, b int) int { return a * b },
 	})
 	t.Parse(badgeSVGTemplate)

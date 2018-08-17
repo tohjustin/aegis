@@ -10,7 +10,8 @@ import (
 	"time"
 )
 
-// LoggerEntry is the structure passed to the template.
+// LoggerEntry is the structure
+// passed to the template.
 type LoggerEntry struct {
 	StartTime string
 	Status    int
@@ -21,10 +22,13 @@ type LoggerEntry struct {
 	Request   *http.Request
 }
 
-// LoggerDefaultFormat is the format logged used by the default Logger instance.
-var LoggerDefaultFormat = "{{.StartTime}} | {{.Status}} | \t {{.Duration}} | {{.Hostname}} | {{.Method}} {{.Path}}"
+// LoggerDefaultFormat is the format
+// logged used by the default Logger instance.
+var LoggerDefaultFormat = "{{.StartTime}} | {{.Status}} | \t {{.Duration}} | {{.Hostname}} | {{.Method}} {{.Path}} \n"
 
-// LoggerDefaultDateFormat is the format used for date by the default Logger instance.
+// LoggerDefaultDateFormat is the
+// format used for date by the
+// default Logger instance.
 var LoggerDefaultDateFormat = time.RFC3339
 
 // ALogger interface
@@ -74,5 +78,5 @@ func (l *Logger) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.Ha
 
 	buff := &bytes.Buffer{}
 	l.template.Execute(buff, log)
-	l.Println(buff.String())
+	l.Printf(buff.String())
 }

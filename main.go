@@ -1,119 +1,36 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"log/syslog"
 	"net/http"
 	"os"
-	"regexp"
 
 	"github.com/gorilla/mux"
-	"github.com/hashicorp/golang-lru"
-	"github.com/tohjustin/badger/pkg/badge"
 	"github.com/urfave/negroni"
 )
 
-const maxStatusLength = 40
-const maxSubjectLength = 40
-const cacheSize = 5000
 const defaultPort = "8080"
 
-var (
-	svgBadgeCache *lru.Cache
-)
-
-func mapSubexpNames(m, n []string) map[string]string {
-	m, n = m[1:], n[1:]
-	r := make(map[string]string, len(m))
-	for i := range n {
-		r[n[i]] = m[i]
-	}
-
-	return r
-}
-
-func badgeHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	badgeParams := vars["badgeParams"]
-	badgeStyle := r.URL.Query().Get("style")
-
-	svgBadge, ok := svgBadgeCache.Get(badgeParams)
-	if !ok {
-		badgeParamsPattern := regexp.MustCompile(`^(?P<subject>.+)-(?P<status>.+)-(?P<color>.+)\.svg$`)
-		matched := badgeParamsPattern.FindStringSubmatch(badgeParams)
-		if matched == nil {
-			errorMsg := fmt.Sprintf("Invalid URL format:\n"+
-				" - Received: \"%s\"\n"+
-				" - Expected: \"<SUBJECT>-<STATUS>-<COLOR>.svg\"", badgeParams)
-			http.Error(w, errorMsg, http.StatusBadRequest)
-			return
-		}
-
-		params := mapSubexpNames(matched, badgeParamsPattern.SubexpNames())
-		if len(params["subject"]) > maxSubjectLength {
-			errorMsg := fmt.Sprintf("Max character length exceeded:\n"+
-				" - Received: \"%s\"\n"+
-				" - Expected: \"<SUBJECT>-<STATUS>-<COLOR>.svg\","+
-				" where SUBJECT is not more than %d characters long", badgeParams, maxStatusLength)
-			http.Error(w, errorMsg, http.StatusBadRequest)
-			return
-		}
-
-		if len(params["status"]) > maxStatusLength {
-			errorMsg := fmt.Sprintf("Max character length exceeded:\n"+
-				" - Received: \"%s\"\n"+
-				" - Expected: \"<SUBJECT>-<STATUS>-<COLOR>.svg\","+
-				" where STATUS is not more than %d characters long", badgeParams, maxStatusLength)
-			http.Error(w, errorMsg, http.StatusBadRequest)
-			return
-		}
-
-		generatedBadge, err := badge.GenerateSVG(badgeStyle, params["subject"], params["status"], params["color"])
-		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-
-		svgBadge = generatedBadge
-		svgBadgeCache.Add(badgeParams, svgBadge)
-	}
-
-	w.Header().Set("Content-Type", "image/svg+xml;utf-8")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, svgBadge)
-}
-
 func main() {
+	logEndpoint := os.Getenv("PAPERTRAIL_HOST")
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
 
+	// initialize handlers
+	badgeServiceInit()
+
+	// setup router
+	mux := mux.NewRouter()
+	mux.UseEncodedPath()
+	mux.HandleFunc(`/badge/{subject}/{status}`, badgeServiceHandler).Methods("GET")
+	mux.HandleFunc(`/badge/{subject}/{status}/{color}`, badgeServiceHandler).Methods("GET")
+
+	// setup middlewares
 	n := negroni.New()
-
-	// Setup recovery middleware
-	n.Use(negroni.NewRecovery())
-
-	// Setup logging middleware
-	logger := negroni.NewLogger()
-	papertrailHost := os.Getenv("PAPERTRAIL_HOST")
-	if papertrailHost != "" {
-		w, err := syslog.Dial("udp", papertrailHost, 0, "badger-server")
-		if err != nil {
-			log.Fatal("failed to dial syslog")
-		}
-		logger.ALogger = log.New(w, "[negroni] ", 0)
-	}
-	n.Use(logger)
-
-	// Setup LRU cache
-	svgBadgeCache, _ = lru.New(cacheSize)
-
-	// Setup routes
-	router := mux.NewRouter()
-	router.HandleFunc(`/{badgeParams}`, badgeHandler).Methods("GET")
-	n.UseHandler(router)
+	n.Use(newLoggerMiddleware(logEndpoint))
+	n.Use(newRecoveryMiddleware())
+	n.UseHandler(mux)
 
 	http.ListenAndServe(":"+port, n)
 }

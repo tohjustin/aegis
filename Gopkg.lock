@@ -2,88 +2,122 @@
 
 
 [[projects]]
+  digest = "1:16c495c70136e179afb42f9ca9b799982ff729e3490300845bb4514360f6864c"
   name = "github.com/bradleyjkemp/cupaloy"
   packages = ["."]
+  pruneopts = "UT"
   revision = "6beff3cebcaae538bba80223de5cfbefd2baf035"
   version = "v2.2.0"
 
 [[projects]]
+  digest = "1:a2c1d0e43bd3baaa071d1b9ed72c27d78169b2b269f71c105ac4ba34b1be4a39"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
+  pruneopts = "UT"
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
   version = "v1.1.0"
 
 [[projects]]
+  digest = "1:5f60960edc786fde3d2dcd0742ff897327703b8a755b789ae7984cc975e3f5a2"
   name = "github.com/gobuffalo/packr"
   packages = ["."]
-  revision = "7f4074995d431987caaa35088199f13c44b24440"
-  version = "v1.11.0"
+  pruneopts = "UT"
+  revision = "4399355520ba52518a972ac16c24f6eb8a1610c1"
+  version = "v1.13.1"
 
 [[projects]]
   branch = "master"
+  digest = "1:62c57507df491b657e9ae2645f30958d9964c8eeb380600469eedc951ebb3a0e"
   name = "github.com/golang/freetype"
   packages = [
     "raster",
-    "truetype"
+    "truetype",
   ]
+  pruneopts = "UT"
   revision = "e2365dfdc4a05e4b8299a783240d4a7d5a65d4e4"
 
 [[projects]]
+  digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
   name = "github.com/gorilla/context"
   packages = ["."]
-  revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
-  version = "v1.1"
+  pruneopts = "UT"
+  revision = "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
+  version = "v1.1.1"
 
 [[projects]]
+  digest = "1:e73f5b0152105f18bc131fba127d9949305c8693f8a762588a82a48f61756f5f"
   name = "github.com/gorilla/mux"
   packages = ["."]
-  revision = "53c1911da2b537f792e7cafcb446b05ffe33b996"
-  version = "v1.6.1"
+  pruneopts = "UT"
+  revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
+  version = "v1.6.2"
 
 [[projects]]
   branch = "master"
+  digest = "1:cf296baa185baae04a9a7004efee8511d08e2f5f51d4cbe5375da89722d681db"
   name = "github.com/hashicorp/golang-lru"
   packages = [
     ".",
-    "simplelru"
+    "simplelru",
   ]
+  pruneopts = "UT"
   revision = "0fb14efe8c47ae851c0034ed7a448854d3d34cf3"
 
 [[projects]]
+  digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
   name = "github.com/pkg/errors"
   packages = ["."]
+  pruneopts = "UT"
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
   version = "v0.8.0"
 
 [[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
+  pruneopts = "UT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:18752d0b95816a1b777505a97f71c7467a8445b8ffb55631a7bf779f6ba4fa83"
   name = "github.com/stretchr/testify"
   packages = ["assert"]
-  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
-  version = "v1.2.1"
+  pruneopts = "UT"
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
 
 [[projects]]
+  digest = "1:606d068450c82b9ddaa21de992f73563754077f0f411235cdfe71d0903a268c3"
   name = "github.com/urfave/negroni"
   packages = ["."]
-  revision = "dae7dc68e5a970eeecdaa7e4191e11d103cb8c1d"
+  pruneopts = "UT"
+  revision = "5dbbc83f748fc3ad38585842b0aedab546d0ea1e"
+  version = "v0.3.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:9ad20acf690cdd6d8e6111a44f6da281ed8992e03119163fe7f10bf261a79cec"
   name = "golang.org/x/image"
   packages = [
     "font",
-    "math/fixed"
+    "math/fixed",
   ]
-  revision = "f315e440302883054d0c2bd85486878cb4f8572c"
+  pruneopts = "UT"
+  revision = "c73c2afc3b812cdd6385de5a50616511c4a3d458"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ea6119453d6fae256145aade2a4524d49479e49eb15b361e6fde160e9e4f2da2"
+  input-imports = [
+    "github.com/bradleyjkemp/cupaloy",
+    "github.com/gobuffalo/packr",
+    "github.com/golang/freetype/truetype",
+    "github.com/gorilla/mux",
+    "github.com/hashicorp/golang-lru",
+    "github.com/stretchr/testify/assert",
+    "github.com/urfave/negroni",
+    "golang.org/x/image/math/fixed",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
