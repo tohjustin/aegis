@@ -7,6 +7,7 @@ package badge
 
 import (
 	"bytes"
+	"encoding/base64"
 	"strings"
 	"text/template"
 
@@ -21,10 +22,20 @@ const (
 	BadgeStyleSemaphore = "semaphore"
 )
 
+// Icon dimensions
+const (
+	IconSize    = 13
+	IconPadding = 3
+	IconOffset  = IconPadding + IconSize
+)
+
 type badge struct {
 	Color            string
 	FontFamily       string
 	FontSize         int
+	IconBase64Str    string
+	IconEnabled      bool
+	IconOffset       int
 	PaddingInner     int
 	PaddingOuter     int
 	Status           string
@@ -49,7 +60,7 @@ func minifySVG(svg string) string {
 	return result
 }
 
-func newBadge(style, subject, status, color string) (badge, error) {
+func newBadge(style, subject, status, color, icon string) (badge, error) {
 	var svgBadge badge
 
 	switch style {
@@ -119,7 +130,19 @@ func newBadge(style, subject, status, color string) (badge, error) {
 		return svgBadge, err
 	}
 
-	svgBadge.SubjectOffset = svgBadge.PaddingOuter
+	if icon != "" {
+		svgIcon, err := packr.NewBox("./assets/icons/").MustString(icon + ".svg")
+		if err == nil {
+			// Set SVG icon color to match `svgBadge.SubjectFontColor`,
+			// We'll include font-awesome's license into the base64-encoded result
+			modifiedSvgIcon := "<svg fill=\"" + svgBadge.SubjectFontColor + "\"" + svgIcon[len("<svg"):]
+			svgBadge.IconBase64Str = base64.StdEncoding.EncodeToString([]byte(modifiedSvgIcon))
+			svgBadge.IconEnabled = true
+			svgBadge.IconOffset = IconOffset
+		}
+	}
+
+	svgBadge.SubjectOffset = svgBadge.PaddingOuter + svgBadge.IconOffset
 	svgBadge.SubjectTextWidth = subjectTextWidth
 	svgBadge.SubjectWidth = svgBadge.SubjectOffset + subjectTextWidth + svgBadge.PaddingInner
 
@@ -134,14 +157,17 @@ func newBadge(style, subject, status, color string) (badge, error) {
 
 // GenerateSVG returns a string representation of the generated SVG badge
 //
-func GenerateSVG(style, subject, status, color string) (string, error) {
-	newBadge, err := newBadge(style, subject, status, color)
+func GenerateSVG(style, subject, status, color, icon string) (string, error) {
+	newBadge, err := newBadge(style, subject, status, color, icon)
 	if err != nil {
 		return "", err
 	}
 
 	badgeSVGTemplate := packr.NewBox("./assets/badge-templates").String(newBadge.TemplateFilename)
 	t := template.New(newBadge.TemplateFilename)
+	t.Funcs(template.FuncMap{
+		"multiply": func(a, b int) int { return a * b },
+	})
 	t.Parse(badgeSVGTemplate)
 
 	var buf bytes.Buffer
