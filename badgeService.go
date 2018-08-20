@@ -1,30 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"net/url"
 
 	"github.com/gorilla/mux"
-	"github.com/hashicorp/golang-lru"
 	"github.com/tohjustin/badger/pkg/badge"
 )
-
-const badgeServiceCacheSize = 5000
-
-var (
-	badgeServiceCache *lru.Cache
-)
-
-func badgeServiceInit() error {
-	cache, err := lru.New(badgeServiceCacheSize)
-	if err != nil {
-		return err
-	}
-
-	badgeServiceCache = cache
-	return nil
-}
 
 func badgeServiceHandler(w http.ResponseWriter, r *http.Request) {
 	routeVariables := mux.Vars(r)
@@ -34,20 +16,12 @@ func badgeServiceHandler(w http.ResponseWriter, r *http.Request) {
 	icon := r.URL.Query().Get("icon")
 	style := r.URL.Query().Get("style")
 
-	cacheKey := subject + "/" + status + "/" + color + "?icon=" + icon + "?style=" + style
-	svgBadge, ok := badgeServiceCache.Get(cacheKey)
-	if !ok {
-		generatedBadge, err := badge.GenerateSVG(style, subject, status, color, icon)
-		if err != nil {
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-			return
-		}
-
-		svgBadge = generatedBadge
-		badgeServiceCache.Add(cacheKey, svgBadge)
+	generatedBadge, err := badge.GenerateSVG(style, subject, status, color, icon)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "image/svg+xml;utf-8")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, svgBadge)
+	w.Write([]byte(generatedBadge))
 }

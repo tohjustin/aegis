@@ -17,9 +17,6 @@ func main() {
 		port = defaultPort
 	}
 
-	// initialize handlers
-	badgeServiceInit()
-
 	// setup router
 	mux := mux.NewRouter()
 	mux.UseEncodedPath()
