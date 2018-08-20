@@ -20,8 +20,9 @@ func main() {
 	// setup router
 	mux := mux.NewRouter()
 	mux.UseEncodedPath()
-	mux.HandleFunc(`/badge/{subject}/{status}`, badgeServiceHandler).Methods("GET")
 	mux.HandleFunc(`/badge/{subject}/{status}/{color}`, badgeServiceHandler).Methods("GET")
+	mux.HandleFunc(`/badge/{subject}/{status}`, badgeServiceHandler).Methods("GET")
+	mux.PathPrefix("/").HandlerFunc(badgeServiceErrorHandler)
 
 	// setup middlewares
 	n := negroni.New()
