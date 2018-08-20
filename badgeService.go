@@ -11,8 +11,6 @@ import (
 )
 
 const badgeServiceCacheSize = 5000
-const maxStatusLength = 40
-const maxSubjectLength = 40
 
 var (
 	badgeServiceCache *lru.Cache
@@ -28,13 +26,6 @@ func badgeServiceInit() error {
 	return nil
 }
 
-func createCharLimitExceededErrorMsg(paramName string, maxLength int) string {
-	return fmt.Sprintf("You have exceeded the maximum character limit:\n"+
-		" - Received: \"%s\"\n"+
-		" - Expected: \"/badge/<SUBJECT>/<STATUS>/<COLOR>\","+
-		" where SUBJECT is not more than %d characters long", paramName, maxLength)
-}
-
 func badgeServiceHandler(w http.ResponseWriter, r *http.Request) {
 	routeVariables := mux.Vars(r)
 	subject, _ := url.PathUnescape(routeVariables["subject"])
@@ -46,18 +37,6 @@ func badgeServiceHandler(w http.ResponseWriter, r *http.Request) {
 	cacheKey := subject + "/" + status + "/" + color + "?icon=" + icon + "?style=" + style
 	svgBadge, ok := badgeServiceCache.Get(cacheKey)
 	if !ok {
-		if len(subject) > maxSubjectLength {
-			errorMsg := createCharLimitExceededErrorMsg(subject, maxSubjectLength)
-			http.Error(w, errorMsg, http.StatusBadRequest)
-			return
-		}
-
-		if len(status) > maxStatusLength {
-			errorMsg := createCharLimitExceededErrorMsg(status, maxStatusLength)
-			http.Error(w, errorMsg, http.StatusBadRequest)
-			return
-		}
-
 		generatedBadge, err := badge.GenerateSVG(style, subject, status, color, icon)
 		if err != nil {
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
