@@ -178,3 +178,15 @@ func GenerateSVG(style, subject, status, color, icon string) (string, error) {
 
 	return minifySVG(buf.String()), nil
 }
+
+// GenerateSVGUnsafe is an unsafe version of GenerateSVG, returns an empty
+// string if an error occurs
+//
+func GenerateSVGUnsafe(style, subject, status, color, icon string) string {
+	generatedBadge, err := GenerateSVG(style, subject, status, color, icon)
+	if err != nil {
+		return ""
+	}
+
+	return generatedBadge
+}
