@@ -10,6 +10,16 @@ import (
 
 const defaultPort = "8080"
 
+func newRouter() http.Handler {
+	mux := mux.NewRouter()
+	mux.UseEncodedPath()
+	mux.HandleFunc(`/badge/{subject}/{status}/{color}`, badgeServiceHandler).Methods("GET")
+	mux.HandleFunc(`/badge/{subject}/{status}`, badgeServiceHandler).Methods("GET")
+	mux.PathPrefix("/").HandlerFunc(badgeServiceErrorHandler).Methods("GET")
+
+	return mux
+}
+
 func main() {
 	logEndpoint := os.Getenv("PAPERTRAIL_HOST")
 	port := os.Getenv("PORT")
@@ -17,18 +27,10 @@ func main() {
 		port = defaultPort
 	}
 
-	// setup router
-	mux := mux.NewRouter()
-	mux.UseEncodedPath()
-	mux.HandleFunc(`/badge/{subject}/{status}/{color}`, badgeServiceHandler).Methods("GET")
-	mux.HandleFunc(`/badge/{subject}/{status}`, badgeServiceHandler).Methods("GET")
-	mux.PathPrefix("/").HandlerFunc(badgeServiceErrorHandler)
-
-	// setup middlewares
 	n := negroni.New()
 	n.Use(newLoggerMiddleware(logEndpoint))
 	n.Use(newRecoveryMiddleware())
-	n.UseHandler(mux)
+	n.UseHandler(newRouter())
 
 	http.ListenAndServe(":"+port, n)
 }
