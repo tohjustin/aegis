@@ -19,7 +19,7 @@
 		<text fill="#000" fill-opacity=".3" textLength="{{.StatusTextWidth}}" x="{{.StatusOffset}}" y="15">{{.Status}}</text>
 		<text fill="{{.StatusFontColor}}" textLength="{{.StatusTextWidth}}" x="{{.StatusOffset}}" y="14">{{.Status}}</text>
 	</g>
-	{{if .IconEnabled}}
+	{{if .IconBase64Str}}
 	<image height="12" width="12" x="{{.PaddingOuter}}" y="4" xlink:href="data:image/svg+xml;base64,{{.IconBase64Str}}"></image>
 	{{end}}
 </svg>

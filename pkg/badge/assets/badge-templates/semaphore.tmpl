@@ -10,7 +10,7 @@
 		<text fill="{{.SubjectFontColor}}" textLength="{{.SubjectTextWidth}}" x="{{.SubjectOffset}}" y="13">{{.Subject}}</text>
 		<text fill="{{.StatusFontColor}}" textLength="{{.StatusTextWidth}}" x="{{.StatusOffset}}" y="13">{{.Status}}</text>
 	</g>
-	{{if .IconEnabled}}
+	{{if .IconBase64Str}}
 	<image height="12" width="12" x="{{.PaddingOuter}}" y="4" xlink:href="data:image/svg+xml;base64,{{.IconBase64Str}}"></image>
 	{{end}}
 </svg>

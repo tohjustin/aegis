@@ -24,32 +24,33 @@ const (
 
 // Icon dimensions
 const (
-	IconSize    = 13
-	IconPadding = 3
-	IconOffset  = IconPadding + IconSize
+	IconOffset = 3 + 13 // IconPadding + IconSize
 )
 
 type badge struct {
-	Color            string
-	FontFamily       string
-	FontSize         int
-	IconBase64Str    string
-	IconEnabled      bool
-	IconOffset       int
-	PaddingInner     int
-	PaddingOuter     int
-	Status           string
-	StatusFontColor  string
-	StatusOffset     int
-	StatusTextWidth  int
-	StatusWidth      int
+	Color        string
+	FontFamily   string
+	FontSize     int
+	PaddingInner int
+	PaddingOuter int
+	TotalWidth   int
+
+	TemplateFilename string
+
+	Status          string
+	StatusFontColor string
+	StatusOffset    int
+	StatusTextWidth int
+	StatusWidth     int
+
 	Subject          string
 	SubjectFontColor string
 	SubjectOffset    int
 	SubjectTextWidth int
 	SubjectWidth     int
-	TemplateFilename string
-	TotalWidth       int
+
+	IconBase64Str string
+	IconOffset    int
 }
 
 // minifies SVG by removing newline & tab characters
@@ -134,10 +135,9 @@ func newBadge(style, subject, status, color, icon string) (badge, error) {
 		svgIcon, err := packr.NewBox("./assets/icons/").MustString(icon + ".svg")
 		if err == nil {
 			// Set SVG icon color to match `svgBadge.SubjectFontColor`,
-			// We'll include font-awesome's license into the base64-encoded result
+			// include font-awesome license into the base64-encoded result
 			modifiedSvgIcon := "<svg fill=\"" + svgBadge.SubjectFontColor + "\"" + svgIcon[len("<svg"):]
 			svgBadge.IconBase64Str = base64.StdEncoding.EncodeToString([]byte(modifiedSvgIcon))
-			svgBadge.IconEnabled = true
 			svgBadge.IconOffset = IconOffset
 		}
 	}
