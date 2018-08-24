@@ -14,18 +14,58 @@ var minifySVGTestCases = map[string]string{
 	"semaphoreSVGTemplate": "semaphore.tmpl",
 }
 
-var badgeTestCases = map[string][]string{
-	"ClassicBadgeWithColorName":      {"classic", "testSubject", "testStatus", "red", ""},
-	"ClassicBadgeWithHexColorCode":   {"classic", "testSubject", "testStatus", "abc", ""},
-	"FlatBadgeWithColorName":         {"flat", "testSubject", "testStatus", "blue", ""},
-	"FlatBadgeWithHexColorCode":      {"flat", "testSubject", "testStatus", "abcdef", ""},
-	"SemaphoreBadgeWithColorName":    {"semaphore", "testSubject", "testStatus", "yellow", ""},
-	"SemaphoreBadgeWithHexColorCode": {"semaphore", "testSubject", "testStatus", "abcdef", ""},
-	"PlasticBadgeWithColorName":      {"plastic", "testSubject", "testStatus", "green", ""},
-	"PlasticBadgeWithHexColorCode":   {"plastic", "testSubject", "testStatus", "abcdef", ""},
+type badgeTestCase struct {
+	subject string
+	status  string
+	options Options
+}
+
+var badgeTestCases = map[string]badgeTestCase{
+	"ClassicBadgeWithColorName": badgeTestCase{
+		subject: "testSubject",
+		status:  "testStatus",
+		options: Options{Color: "red", Style: ClassicStyle},
+	},
+	"ClassicBadgeWithHexColorCode": badgeTestCase{
+		subject: "testSubject",
+		status:  "testStatus",
+		options: Options{Color: "abc", Style: ClassicStyle},
+	},
+	"FlatBadgeWithColorName": badgeTestCase{
+		subject: "testSubject",
+		status:  "testStatus",
+		options: Options{Color: "blue", Style: FlatStyle},
+	},
+	"FlatBadgeWithHexColorCode": badgeTestCase{
+		subject: "testSubject",
+		status:  "testStatus",
+		options: Options{Color: "abcdef", Style: FlatStyle},
+	},
+	"SemaphoreBadgeWithColorName": badgeTestCase{
+		subject: "testSubject",
+		status:  "testStatus",
+		options: Options{Color: "yellow", Style: SemaphoreStyle},
+	},
+	"SemaphoreBadgeWithHexColorCode": badgeTestCase{
+		subject: "testSubject",
+		status:  "testStatus",
+		options: Options{Color: "abcdef", Style: SemaphoreStyle},
+	},
+	"PlasticBadgeWithColorName": badgeTestCase{
+		subject: "testSubject",
+		status:  "testStatus",
+		options: Options{Color: "green", Style: PlasticStyle},
+	},
+	"PlasticBadgeWithHexColorCode": badgeTestCase{
+		subject: "testSubject",
+		status:  "testStatus",
+		options: Options{Color: "abcdef", Style: PlasticStyle},
+	},
 }
 
 func TestMinifySVG(t *testing.T) {
+	t.Parallel()
+
 	for testName, templateName := range minifySVGTestCases {
 		t.Run(testName, func(t *testing.T) {
 			badgeSVGTemplate := packr.NewBox("./assets/badge-templates").String(templateName)
@@ -34,21 +74,23 @@ func TestMinifySVG(t *testing.T) {
 		})
 	}
 }
-func TestNewBadge(t *testing.T) {
-	for testName, args := range badgeTestCases {
+func TestBadgeNew(t *testing.T) {
+	t.Parallel()
+
+	for testName, testParams := range badgeTestCases {
 		t.Run(testName, func(t *testing.T) {
-			badgeStyle, subject, status, color, icon := args[0], args[1], args[2], args[3], args[4]
-			result, _ := newBadge(badgeStyle, subject, status, color, icon)
+			result, _ := new(testParams.subject, testParams.status, &testParams.options)
 			cupaloy.SnapshotT(t, result)
 		})
 	}
 }
 
-func TestGenerateSVG(t *testing.T) {
-	for testName, args := range badgeTestCases {
+func TestBadgeCreate(t *testing.T) {
+	t.Parallel()
+
+	for testName, testParams := range badgeTestCases {
 		t.Run(testName, func(t *testing.T) {
-			badgeStyle, subject, status, color, icon := args[0], args[1], args[2], args[3], args[4]
-			result, _ := GenerateSVG(badgeStyle, subject, status, color, icon)
+			result, _ := Create(testParams.subject, testParams.status, &testParams.options)
 			cupaloy.SnapshotT(t, result)
 		})
 	}
