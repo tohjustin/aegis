@@ -18,7 +18,8 @@ func TestBadgeServiceHandler(t *testing.T) {
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
-		expectedBody:   badge.GenerateSVGUnsafe("classic", "testSubject", "testStatus", "ff0000", ""),
+		expectedBody: badge.CreateUnsafe("testSubject", "testStatus",
+			&badge.Options{Color: "ff0000"}),
 	})
 }
 
@@ -33,7 +34,8 @@ func TestBadgeServiceHandlerWithCSSColorName(t *testing.T) {
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
-		expectedBody:   badge.GenerateSVGUnsafe("classic", "testSubject", "testStatus", "red", ""),
+		expectedBody: badge.CreateUnsafe("testSubject", "testStatus",
+			&badge.Options{Color: "red"}),
 	})
 }
 
@@ -48,7 +50,7 @@ func TestBadgeServiceHandlerWithNoColor(t *testing.T) {
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
-		expectedBody:   badge.GenerateSVGUnsafe("classic", "testSubject", "testStatus", "", ""),
+		expectedBody:   badge.CreateUnsafe("testSubject", "testStatus", nil),
 	})
 }
 
@@ -63,7 +65,7 @@ func TestBadgeServiceHandlerWithBadColor(t *testing.T) {
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
-		expectedBody:   badge.GenerateSVGUnsafe("classic", "testSubject", "testStatus", "", ""),
+		expectedBody:   badge.CreateUnsafe("testSubject", "testStatus", nil),
 	})
 }
 
@@ -72,13 +74,14 @@ func TestBadgeServiceHandlerWithIconQuery(t *testing.T) {
 
 	runHTTPTest(t, httpTestCase{
 		requestMethod: "GET",
-		requestPath:   "/badge/testSubject/testStatus/ff0000?icon=brands/docker",
+		requestPath:   "/badge/testSubject/testStatus?icon=brands/docker",
 		expectedHeaders: map[string]string{
 			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
-		expectedBody:   badge.GenerateSVGUnsafe("classic", "testSubject", "testStatus", "ff0000", "brands/docker"),
+		expectedBody: badge.CreateUnsafe("testSubject", "testStatus",
+			&badge.Options{Icon: "brands/docker"}),
 	})
 }
 
@@ -87,13 +90,13 @@ func TestBadgeServiceHandlerWithBadIconQuery(t *testing.T) {
 
 	runHTTPTest(t, httpTestCase{
 		requestMethod: "GET",
-		requestPath:   "/badge/testSubject/testStatus/ff0000?icon=badIcon",
+		requestPath:   "/badge/testSubject/testStatus?icon=badIcon",
 		expectedHeaders: map[string]string{
 			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
-		expectedBody:   badge.GenerateSVGUnsafe("classic", "testSubject", "testStatus", "ff0000", ""),
+		expectedBody:   badge.CreateUnsafe("testSubject", "testStatus", nil),
 	})
 }
 
@@ -102,13 +105,14 @@ func TestBadgeServiceHandlerWithStyleQuery(t *testing.T) {
 
 	runHTTPTest(t, httpTestCase{
 		requestMethod: "GET",
-		requestPath:   "/badge/testSubject/testStatus/ff0000?style=semaphore",
+		requestPath:   "/badge/testSubject/testStatus?style=semaphore",
 		expectedHeaders: map[string]string{
 			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
-		expectedBody:   badge.GenerateSVGUnsafe("semaphore", "testSubject", "testStatus", "ff0000", ""),
+		expectedBody: badge.CreateUnsafe("testSubject", "testStatus",
+			&badge.Options{Style: "semaphore"}),
 	})
 }
 
@@ -117,13 +121,13 @@ func TestBadgeServiceHandlerWithBadStyleQuery(t *testing.T) {
 
 	runHTTPTest(t, httpTestCase{
 		requestMethod: "GET",
-		requestPath:   "/badge/testSubject/testStatus/ff0000?style=badStyle",
+		requestPath:   "/badge/testSubject/testStatus?style=badStyle",
 		expectedHeaders: map[string]string{
 			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
-		expectedBody:   badge.GenerateSVGUnsafe("classic", "testSubject", "testStatus", "ff0000", ""),
+		expectedBody:   badge.CreateUnsafe("testSubject", "testStatus", nil),
 	})
 }
 
@@ -163,6 +167,6 @@ func TestBadgeServiceErrorHandler(t *testing.T) {
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
-		expectedBody:   badge.GenerateSVGUnsafe("classic", "badger", "400 Bad Request", "", ""),
+		expectedBody:   badge.CreateUnsafe("badger", "400 Bad Request", nil),
 	})
 }

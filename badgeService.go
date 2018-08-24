@@ -18,7 +18,8 @@ func badgeServiceWriteResponse(w http.ResponseWriter, response string) {
 func badgeServiceErrorHandler(w http.ResponseWriter, r *http.Request) {
 	style := r.URL.Query().Get("style")
 
-	generatedBadge, err := badge.GenerateSVG(style, "badger", "400 Bad Request", "", "")
+	createOptions := badge.Options{Style: badge.Style(style)}
+	generatedBadge, err := badge.Create("badger", "400 Bad Request", &createOptions)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
@@ -35,7 +36,8 @@ func badgeServiceHandler(w http.ResponseWriter, r *http.Request) {
 	icon := r.URL.Query().Get("icon")
 	style := r.URL.Query().Get("style")
 
-	generatedBadge, err := badge.GenerateSVG(style, subject, status, color, icon)
+	createOptions := badge.Options{Color: color, Icon: icon, Style: badge.Style(style)}
+	generatedBadge, err := badge.Create(subject, status, &createOptions)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
