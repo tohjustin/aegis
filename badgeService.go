@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -22,6 +23,7 @@ func badgeServiceErrorHandler(w http.ResponseWriter, r *http.Request) {
 	generatedBadge, err := badge.Create("badger", "400 Bad Request", &createOptions)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		fmt.Println(err)
 		return
 	}
 
@@ -40,6 +42,7 @@ func badgeServiceHandler(w http.ResponseWriter, r *http.Request) {
 	generatedBadge, err := badge.Create(subject, status, &createOptions)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		fmt.Println(err)
 		return
 	}
 
