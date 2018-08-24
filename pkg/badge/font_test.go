@@ -7,6 +7,8 @@ import (
 )
 
 func TestMeasureTextWidth(t *testing.T) {
+	t.Parallel()
+
 	expectedLength := 153
 	width, err := computeTextWidth("Lorem ipsum dolor sit amet", 11, "Verdana")
 	if err != nil {
@@ -16,6 +18,8 @@ func TestMeasureTextWidth(t *testing.T) {
 	assert.Equal(t, width, expectedLength)
 }
 func TestMeasureTextWidthWithMissingFont(t *testing.T) {
+	t.Parallel()
+
 	expectedError := "unable to parse \"UNKNOWN_FONT.ttf\""
 	_, err := computeTextWidth("Lorem ipsum dolor sit amet", 11, "UNKNOWN_FONT")
 	if err != nil {

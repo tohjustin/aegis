@@ -50,6 +50,8 @@ var cssColorTestCases = []struct {
 }
 
 func TestIsValidHexColor(t *testing.T) {
+	t.Parallel()
+
 	for _, testCase := range hexColorTestCases {
 		t.Run(testCase.input, func(t *testing.T) {
 			assert.Equal(t, isValidHexColor(testCase.input), testCase.output)
@@ -58,16 +60,22 @@ func TestIsValidHexColor(t *testing.T) {
 }
 
 func TestIsValidCSSColorName(t *testing.T) {
+	t.Parallel()
+
 	for _, testCase := range cssColorTestCases {
 		t.Run(testCase.input, func(t *testing.T) {
 			assert.Equal(t, isValidCSSColorName(testCase.input), testCase.output)
 		})
 	}
 }
-func TestparseColor(t *testing.T) {
-	for input, output := range cssColorNames {
-		result := parseColor(input)
-		assert.Equal(t, result, output)
+func TestParseColor(t *testing.T) {
+	t.Parallel()
+
+	for cssColorName, _ := range cssColorNames {
+		t.Run("TestParseColor-"+cssColorName, func(t *testing.T) {
+			result := parseColor(cssColorName)
+			assert.Equal(t, result, cssColorName)
+		})
 	}
 
 	assert.Equal(t, "#f35f35", parseColor("f35f35"))
