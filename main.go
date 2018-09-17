@@ -24,14 +24,13 @@ func newRouter() http.Handler {
 }
 
 func main() {
-	logEndpoint := os.Getenv("PAPERTRAIL_HOST")
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
 	}
 
 	n := negroni.New()
-	n.Use(newLoggerMiddleware(logEndpoint))
+	n.Use(newLoggerMiddleware())
 	n.Use(newRecoveryMiddleware())
 	n.UseHandler(newRouter())
 
