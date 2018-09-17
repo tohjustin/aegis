@@ -1,6 +1,8 @@
 // Package badge provides functions for generating SVG badges.
 package badge
 
+//go:generate packr
+
 import (
 	"bytes"
 	"encoding/base64"
