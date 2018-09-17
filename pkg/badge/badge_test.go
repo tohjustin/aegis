@@ -21,42 +21,42 @@ type badgeTestCase struct {
 }
 
 var badgeTestCases = map[string]badgeTestCase{
-	"ClassicBadgeWithColorName": badgeTestCase{
+	"ClassicBadgeWithColorName": {
 		subject: "testSubject",
 		status:  "testStatus",
 		options: Options{Color: "red", Style: ClassicStyle},
 	},
-	"ClassicBadgeWithHexColorCode": badgeTestCase{
+	"ClassicBadgeWithHexColorCode": {
 		subject: "testSubject",
 		status:  "testStatus",
 		options: Options{Color: "abc", Style: ClassicStyle},
 	},
-	"FlatBadgeWithColorName": badgeTestCase{
+	"FlatBadgeWithColorName": {
 		subject: "testSubject",
 		status:  "testStatus",
 		options: Options{Color: "blue", Style: FlatStyle},
 	},
-	"FlatBadgeWithHexColorCode": badgeTestCase{
+	"FlatBadgeWithHexColorCode": {
 		subject: "testSubject",
 		status:  "testStatus",
 		options: Options{Color: "abcdef", Style: FlatStyle},
 	},
-	"SemaphoreBadgeWithColorName": badgeTestCase{
+	"SemaphoreBadgeWithColorName": {
 		subject: "testSubject",
 		status:  "testStatus",
 		options: Options{Color: "yellow", Style: SemaphoreStyle},
 	},
-	"SemaphoreBadgeWithHexColorCode": badgeTestCase{
+	"SemaphoreBadgeWithHexColorCode": {
 		subject: "testSubject",
 		status:  "testStatus",
 		options: Options{Color: "abcdef", Style: SemaphoreStyle},
 	},
-	"PlasticBadgeWithColorName": badgeTestCase{
+	"PlasticBadgeWithColorName": {
 		subject: "testSubject",
 		status:  "testStatus",
 		options: Options{Color: "green", Style: PlasticStyle},
 	},
-	"PlasticBadgeWithHexColorCode": badgeTestCase{
+	"PlasticBadgeWithHexColorCode": {
 		subject: "testSubject",
 		status:  "testStatus",
 		options: Options{Color: "abcdef", Style: PlasticStyle},

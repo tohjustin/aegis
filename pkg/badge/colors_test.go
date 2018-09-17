@@ -71,7 +71,7 @@ func TestIsValidCSSColorName(t *testing.T) {
 func TestParseColor(t *testing.T) {
 	t.Parallel()
 
-	for cssColorName, _ := range cssColorNames {
+	for cssColorName := range cssColorNames {
 		t.Run("TestParseColor-"+cssColorName, func(t *testing.T) {
 			result := parseColor(cssColorName)
 			assert.Equal(t, result, cssColorName)
