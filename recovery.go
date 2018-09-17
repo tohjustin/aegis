@@ -20,14 +20,9 @@ func (t *textPanicFormatter) FormatPanicError(
 	fmt.Fprintf(rw, "500 internal server error")
 }
 
-func reportToSentry(info *negroni.PanicInformation) {
-	// write code here to report error to Sentry
-}
-
 func newRecoveryMiddleware() (recovery *negroni.Recovery) {
 	recovery = negroni.NewRecovery()
 	recovery.Formatter = &textPanicFormatter{}
-	recovery.PanicHandlerFunc = reportToSentry
 	recovery.PrintStack = false
 	return
 }
