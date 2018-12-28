@@ -5,3 +5,8 @@
 [![codecov](https://codecov.io/gh/tohjustin/badger/branch/master/graph/badge.svg?token=HRJhI2JVS0)](https://codecov.io/gh/tohjustin/badger)
 [![GoDoc](https://godoc.org/github.com/tohjustin/badger/pkg/badge?status.svg)](http://godoc.org/github.com/tohjustin/badger/pkg/badge/)
 [![License: MIT](https://badger.now.sh/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftohjustin%2Fbadger.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftohjustin%2Fbadger?ref=badge_shield)
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Ftohjustin%2Fbadger.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Ftohjustin%2Fbadger?ref=badge_large)
