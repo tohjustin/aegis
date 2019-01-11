@@ -12,7 +12,7 @@ func TestBadgeServiceHandler(t *testing.T) {
 
 	runHTTPTest(t, httpTestCase{
 		requestMethod: "GET",
-		requestPath:   "/badge/testSubject/testStatus/ff0000",
+		requestPath:   "/badge?subject=testSubject&status=testStatus&color=ff0000",
 		expectedHeaders: map[string]string{
 			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
 			"Content-Type":  "image/svg+xml;utf-8",
@@ -28,7 +28,7 @@ func TestBadgeServiceHandlerWithCSSColorName(t *testing.T) {
 
 	runHTTPTest(t, httpTestCase{
 		requestMethod: "GET",
-		requestPath:   "/badge/testSubject/testStatus/red",
+		requestPath:   "/badge?subject=testSubject&status=testStatus&color=red",
 		expectedHeaders: map[string]string{
 			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
 			"Content-Type":  "image/svg+xml;utf-8",
@@ -44,7 +44,7 @@ func TestBadgeServiceHandlerWithNoColor(t *testing.T) {
 
 	runHTTPTest(t, httpTestCase{
 		requestMethod: "GET",
-		requestPath:   "/badge/testSubject/testStatus",
+		requestPath:   "/badge?subject=testSubject&status=testStatus",
 		expectedHeaders: map[string]string{
 			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
 			"Content-Type":  "image/svg+xml;utf-8",
@@ -59,7 +59,7 @@ func TestBadgeServiceHandlerWithBadColor(t *testing.T) {
 
 	runHTTPTest(t, httpTestCase{
 		requestMethod: "GET",
-		requestPath:   "/badge/testSubject/testStatus/badColor",
+		requestPath:   "/badge?subject=testSubject&status=testStatus&color=badColor",
 		expectedHeaders: map[string]string{
 			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
 			"Content-Type":  "image/svg+xml;utf-8",
@@ -74,7 +74,7 @@ func TestBadgeServiceHandlerWithIconQuery(t *testing.T) {
 
 	runHTTPTest(t, httpTestCase{
 		requestMethod: "GET",
-		requestPath:   "/badge/testSubject/testStatus?icon=brands/docker",
+		requestPath:   "/badge?subject=testSubject&status=testStatus&icon=brands/docker",
 		expectedHeaders: map[string]string{
 			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
 			"Content-Type":  "image/svg+xml;utf-8",
@@ -90,7 +90,7 @@ func TestBadgeServiceHandlerWithBadIconQuery(t *testing.T) {
 
 	runHTTPTest(t, httpTestCase{
 		requestMethod: "GET",
-		requestPath:   "/badge/testSubject/testStatus?icon=badIcon",
+		requestPath:   "/badge?subject=testSubject&status=testStatus&icon=badIcon",
 		expectedHeaders: map[string]string{
 			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
 			"Content-Type":  "image/svg+xml;utf-8",
@@ -105,7 +105,7 @@ func TestBadgeServiceHandlerWithStyleQuery(t *testing.T) {
 
 	runHTTPTest(t, httpTestCase{
 		requestMethod: "GET",
-		requestPath:   "/badge/testSubject/testStatus?style=semaphore",
+		requestPath:   "/badge?subject=testSubject&status=testStatus&style=semaphore",
 		expectedHeaders: map[string]string{
 			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
 			"Content-Type":  "image/svg+xml;utf-8",
@@ -121,7 +121,7 @@ func TestBadgeServiceHandlerWithBadStyleQuery(t *testing.T) {
 
 	runHTTPTest(t, httpTestCase{
 		requestMethod: "GET",
-		requestPath:   "/badge/testSubject/testStatus?style=badStyle",
+		requestPath:   "/badge?subject=testSubject&status=testStatus&style=badStyle",
 		expectedHeaders: map[string]string{
 			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
 			"Content-Type":  "image/svg+xml;utf-8",
@@ -148,7 +148,7 @@ func TestBadgeServiceHandlerWithBadHTTPMethods(t *testing.T) {
 	for _, badHTTPMethod := range badHTTPMethods {
 		runHTTPTest(t, httpTestCase{
 			requestMethod:   badHTTPMethod,
-			requestPath:     "/badge/testSubject/testStatus/ff0000",
+			requestPath:     "/badge?subject=testSubject&status=testStatus&color=ff0000",
 			expectedHeaders: nil,
 			expectedStatus:  405,
 			expectedBody:    "",

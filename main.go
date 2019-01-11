@@ -16,8 +16,7 @@ const defaultPort = "8080"
 func newRouter() http.Handler {
 	mux := mux.NewRouter()
 	mux.UseEncodedPath()
-	mux.HandleFunc(`/badge/{subject}/{status}/{color}`, badgeServiceHandler).Methods("GET")
-	mux.HandleFunc(`/badge/{subject}/{status}`, badgeServiceHandler).Methods("GET")
+	mux.HandleFunc(`/badge`, badgeServiceHandler).Methods("GET")
 	mux.PathPrefix("/").HandlerFunc(badgeServiceErrorHandler).Methods("GET")
 
 	return mux

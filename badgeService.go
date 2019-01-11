@@ -3,9 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 
-	"github.com/gorilla/mux"
 	"github.com/tohjustin/badger/pkg/badge"
 )
 
@@ -31,12 +29,11 @@ func badgeServiceErrorHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func badgeServiceHandler(w http.ResponseWriter, r *http.Request) {
-	routeVariables := mux.Vars(r)
-	subject, _ := url.PathUnescape(routeVariables["subject"])
-	status, _ := url.PathUnescape(routeVariables["status"])
-	color := routeVariables["color"]
+	color := r.URL.Query().Get("color")
 	icon := r.URL.Query().Get("icon")
+	status := r.URL.Query().Get("status")
 	style := r.URL.Query().Get("style")
+	subject := r.URL.Query().Get("subject")
 
 	createOptions := badge.Options{Color: color, Icon: icon, Style: badge.Style(style)}
 	generatedBadge, err := badge.Create(subject, status, &createOptions)
