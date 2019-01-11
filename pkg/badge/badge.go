@@ -30,7 +30,7 @@ type Options struct {
 	// (eg. "coral", "1bacbf", "fff")
 	Color string
 
-	// Font Awesome Free 5.2.0 by @fontawesome - https://fontawesome.com
+	// Font Awesome Icons (Free Version) - v5.6.3 by @fontawesome - https://fontawesome.com
 	// (eg. "brands/docker", "regular/credit-card", "solid/anchor")
 	Icon string
 
