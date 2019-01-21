@@ -30,6 +30,16 @@ Use the following list of available query parameters to configure your badge app
 | ------- |------------- | ----------------------------------------------------------------------------------------------------------------- |
 | /static | Static badge | ![static](https://badger.now.sh/static?icon=brands/font-awesome&subject=Font%20Awesome&status=v5.6.3&color=318FE0) |
 
+### Github Badge Service
+
+[![Github GraphQL API](https://badger.now.sh/static?icon=brands/github&subject=Github%20GraphQL%20API&status=v4)](https://developer.github.com/v4/)
+
+| Path                                           | Description        | Example                                                                             |
+| ---------------------------------------------- |------------------- | ----------------------------------------------------------------------------------- |
+| /github/`<OWNER>`/`<REPOSITORY>`/forks         | Forks count         | ![github/forks](https://badger.now.sh/github/google/gopacket/forks)                 |
+| /github/`<OWNER>`/`<REPOSITORY>`/issues<br>/github/`<OWNER>`/`<REPOSITORY>`/issues?state=open<br>/github/`<OWNER>`/`<REPOSITORY>`/issues?state=closed<br> | Issue count        | ![github/issues](https://badger.now.sh/github/google/gopacket/issues)<br>![github/open-issues](https://badger.now.sh/github/google/gopacket/issues?state=open)<br>![github/closed-issues](https://badger.now.sh/github/google/gopacket/issues?state=closed)  |
+| /github/`<OWNER>`/`<REPOSITORY>`/pull-requests<br>/github/`<OWNER>`/`<REPOSITORY>`/pull-requests?state=open<br>/github/`<OWNER>`/`<REPOSITORY>`/pull-requests?state=closed<br>/github/`<OWNER>`/`<REPOSITORY>`/pull-requests?state=merged<br> | Pull Request count | ![github/pull-requests](https://badger.now.sh/github/google/gopacket/pull-requests)<br>![github/open-pull-requests](https://badger.now.sh/github/google/gopacket/pull-requests?state=open)<br>![github/closed-pull-requests](https://badger.now.sh/github/google/gopacket/pull-requests?state=closed)<br>![github/merged-pull-requests](https://badger.now.sh/github/google/gopacket/pull-requests?state=merged) |
+| /github/`<OWNER>`/`<REPOSITORY>`/stars         | Star count         | ![github/stars](https://badger.now.sh/github/google/gopacket/stars)                 |
 
 ## Getting Started
 
@@ -61,3 +71,25 @@ To run the badger server locally, make sure to run `make all` or `make build` to
 2019/01/11 23:39:10 HTTP service listening on port 8080...
 ```
 
+## Package Usage
+
+Sample program for using the [badge](https://godoc.org/github.com/tohjustin/badger/pkg/badge) package:
+
+```go
+package main
+
+import (
+	"fmt"
+
+	"github.com/tohjustin/badger/pkg/badge"
+)
+
+func main() {
+	badgeOptions := badge.Options{
+		Color: "318FE0",
+		Icon:  "brands/font-awesome",
+		Style: badge.ClassicStyle,
+	}
+	generatedBadge, _ := badge.Create("Font Awesome", "v5.6.3", &badgeOptions)
+}
+```

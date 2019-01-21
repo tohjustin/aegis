@@ -37,6 +37,14 @@
   revision = "e2365dfdc4a05e4b8299a783240d4a7d5a65d4e4"
 
 [[projects]]
+  digest = "1:97df918963298c287643883209a2c3f642e6593379f97ab400c2a2e219ab647d"
+  name = "github.com/golang/protobuf"
+  packages = ["proto"]
+  pruneopts = "UT"
+  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
+  version = "v1.2.0"
+
+[[projects]]
   digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
   name = "github.com/gorilla/context"
   packages = ["."]
@@ -69,6 +77,26 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:9c8283bf8d49135bdf72ea613e78e8e9e169325db8966ec3020caca762c21e5c"
+  name = "github.com/shurcooL/githubv4"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d9689b59501712371c702f54e9573531888d52fe"
+
+[[projects]]
+  branch = "master"
+  digest = "1:070fd6646e4774dadf633e813a587e152f9386fad277e60a7c6907096a687efe"
+  name = "github.com/shurcooL/graphql"
+  packages = [
+    ".",
+    "ident",
+    "internal/jsonutil",
+  ]
+  pruneopts = "UT"
+  revision = "d48a9a75455f6af30244670bc0c9d0e38e7392b5"
+
+[[projects]]
   digest = "1:18752d0b95816a1b777505a97f71c7467a8445b8ffb55631a7bf779f6ba4fa83"
   name = "github.com/stretchr/testify"
   packages = ["assert"]
@@ -95,6 +123,44 @@
   pruneopts = "UT"
   revision = "c73c2afc3b812cdd6385de5a50616511c4a3d458"
 
+[[projects]]
+  branch = "master"
+  digest = "1:f8b491a7c25030a895a0e579742d07136e6958e77ef2d46e769db8eec4e58fcd"
+  name = "golang.org/x/net"
+  packages = [
+    "context",
+    "context/ctxhttp",
+  ]
+  pruneopts = "UT"
+  revision = "ed066c81e75eba56dd9bd2139ade88125b855585"
+
+[[projects]]
+  branch = "master"
+  digest = "1:e007b54f54cbd4214aa6d97a67d57bc2539991adb4e22ea92c482bbece8de469"
+  name = "golang.org/x/oauth2"
+  packages = [
+    ".",
+    "internal",
+  ]
+  pruneopts = "UT"
+  revision = "5dab4167f31cbd76b407f1486c86b40748bc5073"
+
+[[projects]]
+  digest = "1:6f3bd49ddf2e104e52062774d797714371fac1b8bddfd8e124ce78e6b2264a10"
+  name = "google.golang.org/appengine"
+  packages = [
+    "internal",
+    "internal/base",
+    "internal/datastore",
+    "internal/log",
+    "internal/remote_api",
+    "internal/urlfetch",
+    "urlfetch",
+  ]
+  pruneopts = "UT"
+  revision = "e9657d882bb81064595ca3b56cbe2546bbabf7b1"
+  version = "v1.4.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -103,9 +169,11 @@
     "github.com/gobuffalo/packr",
     "github.com/golang/freetype/truetype",
     "github.com/gorilla/mux",
+    "github.com/shurcooL/githubv4",
     "github.com/stretchr/testify/assert",
     "github.com/urfave/negroni",
     "golang.org/x/image/math/fixed",
+    "golang.org/x/oauth2",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
