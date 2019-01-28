@@ -51,6 +51,17 @@ Use the following list of available query parameters to configure your badge app
 | /github/`<OWNER>`/`<REPOSITORY>`/pull-requests<br>/github/`<OWNER>`/`<REPOSITORY>`/pull-requests?state=open<br>/github/`<OWNER>`/`<REPOSITORY>`/pull-requests?state=closed<br>/github/`<OWNER>`/`<REPOSITORY>`/pull-requests?state=merged<br> | Pull Request count | ![github/pull-requests](https://badger.now.sh/github/google/gopacket/pull-requests)<br>![github/open-pull-requests](https://badger.now.sh/github/google/gopacket/pull-requests?state=open)<br>![github/closed-pull-requests](https://badger.now.sh/github/google/gopacket/pull-requests?state=closed)<br>![github/merged-pull-requests](https://badger.now.sh/github/google/gopacket/pull-requests?state=merged) |
 | /github/`<OWNER>`/`<REPOSITORY>`/stars         | Star count         | ![github/stars](https://badger.now.sh/github/google/gopacket/stars)                 |
 
+### GitLab Badge Service
+
+[![GitLab API](https://badger.now.sh/static?icon=brands/gitlab&subject=GitLab%20API&status=v4)](https://docs.gitlab.com/ee/api/)
+
+| Path                                           | Description        | Example                                                                             |
+| ---------------------------------------------- |------------------- | ----------------------------------------------------------------------------------- |
+| /gitlab/`<NAMESPACE>`/`<PROJECT_NAME>`/forks         | Forks count         | ![gitlab/forks](https://badger.now.sh/gitlab/gitlab-org/gitaly/forks)                 |
+| /gitlab/`<NAMESPACE>`/`<PROJECT_NAME>`/issues<br>/gitlab/`<NAMESPACE>`/`<PROJECT_NAME>`/issues?state=opened<br>/gitlab/`<NAMESPACE>`/`<PROJECT_NAME>`/issues?state=closed<br> | Issue count        | ![gitlab/issues](https://badger.now.sh/gitlab/gitlab-org/gitaly/issues)<br>![gitlab/opened-issues](https://badger.now.sh/gitlab/gitlab-org/gitaly/issues?state=opened)<br>![gitlab/closed-issues](https://badger.now.sh/gitlab/gitlab-org/gitaly/issues?state=closed)<br> |
+| /gitlab/`<NAMESPACE>`/`<PROJECT_NAME>`/merge-requests<br>/gitlab/`<NAMESPACE>`/`<PROJECT_NAME>`/merge-requests?state=opened<br>/gitlab/`<NAMESPACE>`/`<PROJECT_NAME>`/merge-requests?state=closed<br>/gitlab/`<NAMESPACE>`/`<PROJECT_NAME>`/merge-requests?state=locked<br>/gitlab/`<NAMESPACE>`/`<PROJECT_NAME>`/merge-requests?state=merged<br> | Merge Request count | ![gitlab/merge-requests](https://badger.now.sh/gitlab/gitlab-org/gitaly/merge-requests)<br>![gitlab/opened-merge-requests](https://badger.now.sh/gitlab/gitlab-org/gitaly/merge-requests?state=opened)<br>![gitlab/closed-merge-requests](https://badger.now.sh/gitlab/gitlab-org/gitaly/merge-requests?state=closed)<br>![gitlab/locked-merge-requests](https://badger.now.sh/gitlab/gitlab-org/gitaly/merge-requests?state=locked)<br>![gitlab/merged-merge-requests](https://badger.now.sh/gitlab/gitlab-org/gitaly/merge-requests?state=merged)<br> |
+| /gitlab/`<NAMESPACE>`/`<PROJECT_NAME>`/stars<br> | Star count | ![gitlab/stars](https://badger.now.sh/gitlab/gitlab-org/gitaly/stars)<br> |
+
 ## Getting Started
 
 This project includes a [Makefile](Makefile) for testing and building the project. To see all available options:
