@@ -14,11 +14,13 @@ import (
 const defaultPort = "8080"
 
 func newRouter() http.Handler {
+	bitbucketService := NewBitbucketService()
 	githubService := NewGithubService()
 
 	mux := mux.NewRouter()
 	mux.UseEncodedPath()
 	mux.HandleFunc(`/static`, badgeServiceHandler).Methods("GET")
+	mux.HandleFunc(`/bitbucket/{owner}/{repo}/{requestType}`, bitbucketService.Handler).Methods("GET")
 	mux.HandleFunc(`/github/{owner}/{repo}/{requestType}`, githubService.Handler).Methods("GET")
 	mux.PathPrefix("/").HandlerFunc(badgeServiceErrorHandler).Methods("GET")
 
