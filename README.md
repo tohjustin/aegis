@@ -92,25 +92,4 @@ To run the badger server locally, make sure to run `make all` or `make build` to
 2019/01/11 23:39:10 HTTP service listening on port 8080...
 ```
 
-## Package Usage
 
-Sample program for using the [badge](https://godoc.org/github.com/tohjustin/badger/pkg/badge) package:
-
-```go
-package main
-
-import (
-	"fmt"
-
-	"github.com/tohjustin/badger/pkg/badge"
-)
-
-func main() {
-	badgeOptions := badge.Options{
-		Color: "318FE0",
-		Icon:  "brands/font-awesome",
-		Style: badge.ClassicStyle,
-	}
-	generatedBadge, _ := badge.Create("Font Awesome", "v5.6.3", &badgeOptions)
-}
-```
