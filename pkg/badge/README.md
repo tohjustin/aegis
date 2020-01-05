@@ -17,6 +17,6 @@ func main() {
     Icon:  "brands/font-awesome",
     Style: badge.ClassicStyle,
   }
-  generatedBadge, _ := badge.Create("Font Awesome", "v5.6.3", &badgeOptions)
+  generatedBadge, _ := badge.Create("Font Awesome", "v5.12.0", &badgeOptions)
 }
 ```

@@ -26,14 +26,12 @@ const (
 
 // Options holds badge parameters
 type Options struct {
-	// CSS color names (up to CSS Color Module Level 3) or HEX values
-	// (eg. "coral", "1bacbf", "fff")
+	// Color determines the highlight color of the badge.
+	// Valid color values includes CSS color names (up to CSS Color Module Level 3) or HEX values (eg. "coral", "1bacbf", "fff")
 	Color string
-
-	// Font Awesome Icons (Free Version) - v5.6.3 by @fontawesome - https://fontawesome.com
-	// (eg. "brands/docker", "regular/credit-card", "solid/anchor")
+	// Icon determines whether the badge should include icons or not (eg. "brands/docker", "regular/credit-card", "solid/anchor")
 	Icon string
-
+	// Style determines the visual style of the badge
 	Style Style
 }
 
