@@ -188,9 +188,3 @@ func Create(subject, status string, options *Options) (string, error) {
 
 	return minifySVG(buf.String()), nil
 }
-
-// CreateUnsafe generates a SVG badge (unsafe version does not return errors)
-func CreateUnsafe(subject, status string, options *Options) string {
-	generatedBadge, _ := Create(subject, status, options)
-	return generatedBadge
-}
