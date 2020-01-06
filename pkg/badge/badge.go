@@ -7,9 +7,8 @@ package badge
 import (
 	"bytes"
 	"encoding/base64"
-	"regexp"
+	"fmt"
 	"strings"
-	"text/template"
 
 	"github.com/gobuffalo/packr"
 )
@@ -38,14 +37,13 @@ type Options struct {
 
 // badge holds dimensions used in generating SVG badge
 type badge struct {
+	Style        Style
 	Color        string
 	FontFamily   string
 	FontSize     int
 	PaddingInner int
 	PaddingOuter int
 	TotalWidth   int
-
-	TemplateFilename string
 
 	Status          string
 	StatusFontColor string
@@ -63,11 +61,6 @@ type badge struct {
 	IconOffset    int
 }
 
-// minifySVG minifies the SVG by removing newline, tab characters
-func minifySVG(svg string) string {
-	return regexp.MustCompile(`[\n\t]`).ReplaceAllString(svg, "")
-}
-
 // new computes SVG dimensions based on the given badge parameters & stores into `badge` data object
 func new(subject, status string, options *Options) (badge, error) {
 	badgeOptions := options
@@ -79,6 +72,7 @@ func new(subject, status string, options *Options) (badge, error) {
 	switch badgeOptions.Style {
 	case FlatStyle:
 		newBadge = badge{
+			Style:            FlatStyle,
 			Color:            parseColor(badgeOptions.Color),
 			FontFamily:       "Verdana",
 			FontSize:         11,
@@ -88,10 +82,10 @@ func new(subject, status string, options *Options) (badge, error) {
 			StatusFontColor:  "#fff",
 			Subject:          subject,
 			SubjectFontColor: "#fff",
-			TemplateFilename: "flat.tmpl",
 		}
 	case PlasticStyle:
 		newBadge = badge{
+			Style:            PlasticStyle,
 			Color:            parseColor(badgeOptions.Color),
 			FontFamily:       "Verdana",
 			FontSize:         11,
@@ -101,10 +95,10 @@ func new(subject, status string, options *Options) (badge, error) {
 			StatusFontColor:  "#fff",
 			Subject:          subject,
 			SubjectFontColor: "#fff",
-			TemplateFilename: "plastic.tmpl",
 		}
 	case SemaphoreStyle:
 		newBadge = badge{
+			Style:            SemaphoreStyle,
 			Color:            parseColor(badgeOptions.Color),
 			FontFamily:       "Verdana",
 			FontSize:         9,
@@ -114,12 +108,12 @@ func new(subject, status string, options *Options) (badge, error) {
 			StatusFontColor:  "#fff",
 			Subject:          strings.ToUpper(subject),
 			SubjectFontColor: "#888",
-			TemplateFilename: "semaphore.tmpl",
 		}
 	case ClassicStyle:
 		fallthrough
 	default:
 		newBadge = badge{
+			Style:            ClassicStyle,
 			Color:            parseColor(badgeOptions.Color),
 			FontFamily:       "Verdana",
 			FontSize:         11,
@@ -129,7 +123,6 @@ func new(subject, status string, options *Options) (badge, error) {
 			StatusFontColor:  "#fff",
 			Subject:          subject,
 			SubjectFontColor: "#fff",
-			TemplateFilename: "classic.tmpl",
 		}
 	}
 
@@ -176,9 +169,10 @@ func Create(subject, status string, options *Options) (string, error) {
 		return "", err
 	}
 
-	badgeSVGTemplate := packr.NewBox("./assets/badge-templates").String(newBadge.TemplateFilename)
-	t := template.New(newBadge.TemplateFilename)
-	t.Parse(badgeSVGTemplate)
+	t, ok := badgeTemplates[newBadge.Style]
+	if !ok {
+		return "", fmt.Errorf("badge template does not exist: %s", options.Style)
+	}
 
 	var buf bytes.Buffer
 	err = t.Execute(&buf, newBadge)
@@ -186,5 +180,5 @@ func Create(subject, status string, options *Options) (string, error) {
 		return "", err
 	}
 
-	return minifySVG(buf.String()), nil
+	return buf.String(), nil
 }

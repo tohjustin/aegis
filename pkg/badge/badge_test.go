@@ -4,15 +4,7 @@ import (
 	"testing"
 
 	"github.com/bradleyjkemp/cupaloy"
-	"github.com/gobuffalo/packr"
 )
-
-var minifySVGTestCases = map[string]string{
-	"classicSVGTemplate":   "classic.tmpl",
-	"flatSVGTemplate":      "flat.tmpl",
-	"plasticSVGTemplate":   "plastic.tmpl",
-	"semaphoreSVGTemplate": "semaphore.tmpl",
-}
 
 type badgeTestCase struct {
 	subject string
@@ -63,17 +55,6 @@ var badgeTestCases = map[string]badgeTestCase{
 	},
 }
 
-func TestMinifySVG(t *testing.T) {
-	t.Parallel()
-
-	for testName, templateName := range minifySVGTestCases {
-		t.Run(testName, func(t *testing.T) {
-			badgeSVGTemplate := packr.NewBox("./assets/badge-templates").String(templateName)
-			result := minifySVG(badgeSVGTemplate)
-			cupaloy.SnapshotT(t, result)
-		})
-	}
-}
 func TestBadgeNew(t *testing.T) {
 	t.Parallel()
 
