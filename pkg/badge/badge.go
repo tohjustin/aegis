@@ -2,6 +2,7 @@
 package badge
 
 //go:generate packr
+//go:generate go run gen.go
 
 import (
 	"bytes"
