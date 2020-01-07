@@ -69,7 +69,28 @@ func run() error {
 		return err
 	}
 
+	icons := make([]datum, 0)
+	if err := filepath.Walk("assets/icons",
+		func(path string, info os.FileInfo, walkErr error) error {
+			if !info.IsDir() && strings.HasSuffix(info.Name(), ".svg") {
+				svg, readFileErr := ioutil.ReadFile(path)
+				if readFileErr != nil {
+					return readFileErr
+				}
+
+				icons = append(icons, datum{
+					Name: strings.TrimSuffix(strings.TrimPrefix(path, "assets/icons/"), ".svg"),
+					Value: string(svg),
+				})
+			}
+
+			return walkErr
+		}); err != nil {
+		return err
+	}
+
 	data := map[string]interface{}{
+		"Icons":               icons,
 		"Templates":           badgeTemplates,
 		"Verdana9CharWidths":  Verdana9CharWidths,
 		"Verdana11CharWidths": Verdana11CharWidths,

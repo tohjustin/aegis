@@ -1,7 +1,6 @@
 // Package badge provides functions for generating SVG badges.
 package badge
 
-//go:generate packr
 //go:generate go run gen.go
 
 import (
@@ -9,8 +8,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"strings"
-
-	"github.com/gobuffalo/packr"
 )
 
 // Style determines the type of badge to generate
@@ -139,8 +136,8 @@ func new(subject, status string, options *Options) (badge, error) {
 	}
 
 	if badgeOptions.Icon != "" {
-		svgIcon, err := packr.NewBox("./assets/icons/").MustString(badgeOptions.Icon + ".svg")
-		if err == nil {
+		svgIcon, ok := fontAwesomeIcons[badgeOptions.Icon]
+		if ok {
 			// Set SVG icon color to match `newBadge.SubjectFontColor`,
 			// include font-awesome license into the base64-encoded result
 			modifiedSvgIcon := "<svg fill=\"" + newBadge.SubjectFontColor + "\"" + svgIcon[len("<svg"):]
