@@ -24,7 +24,7 @@ const (
 // Options holds badge parameters
 type Options struct {
 	// Color determines the highlight color of the badge.
-	// Valid color values includes CSS color names (up to CSS Color Module Level 3) or HEX values (eg. "coral", "1bacbf", "fff")
+	// Valid color values includes CSS color names (up to CSS Color Module Level 3) or HEX values (eg. "coral", "#1bacbf", "1bacbf", "fff", "#fff")
 	Color string
 	// Icon determines whether the badge should include icons or not (eg. "brands/docker", "regular/credit-card", "solid/anchor")
 	Icon string

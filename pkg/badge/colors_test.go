@@ -7,24 +7,21 @@ import (
 )
 
 var hexColorTestCases = []struct {
-	input  string
-	output bool
+	input    string
+	expected bool
 }{
-	{"000", false},
-	{"f35", false},
-	{"F35", false},
-	{"fff", false},
-	{"FFF", false},
-	{"000000", false},
-	{"f35f35", false},
-	{"F35F35", false},
-	{"F35f35", false},
-	{"ffffff", false},
-	{"FFFFFF", false},
-	{"FFffFF", false},
-	{"red", false},
-	{"#ffffffaa", false},
-	{"#FFFFFFAA", false},
+	{"000", true},
+	{"f35", true},
+	{"F35", true},
+	{"fff", true},
+	{"FFF", true},
+	{"000000", true},
+	{"f35f35", true},
+	{"F35F35", true},
+	{"F35f35", true},
+	{"ffffff", true},
+	{"FFFFFF", true},
+	{"FFffFF", true},
 	{"#000", true},
 	{"#f35", true},
 	{"#F35", true},
@@ -37,11 +34,14 @@ var hexColorTestCases = []struct {
 	{"#ffffff", true},
 	{"#FFFFFF", true},
 	{"#FFffFF", true},
+	{"red", false},
+	{"#ffffffaa", false},
+	{"#FFFFFFAA", false},
 }
 
 var cssColorTestCases = []struct {
-	input  string
-	output bool
+	input    string
+	expected bool
 }{
 	{"red", true},            // CSS Level 1
 	{"orange", true},         // CSS Level 2
@@ -54,7 +54,7 @@ func TestIsValidHexColor(t *testing.T) {
 
 	for _, testCase := range hexColorTestCases {
 		t.Run(testCase.input, func(t *testing.T) {
-			assert.Equal(t, isValidHexColor(testCase.input), testCase.output)
+			assert.Equal(t, isValidHexColor(testCase.input), testCase.expected)
 		})
 	}
 }
@@ -64,7 +64,7 @@ func TestIsValidCSSColorName(t *testing.T) {
 
 	for _, testCase := range cssColorTestCases {
 		t.Run(testCase.input, func(t *testing.T) {
-			assert.Equal(t, isValidCSSColorName(testCase.input), testCase.output)
+			assert.Equal(t, isValidCSSColorName(testCase.input), testCase.expected)
 		})
 	}
 }
@@ -78,6 +78,15 @@ func TestParseColor(t *testing.T) {
 		})
 	}
 
-	assert.Equal(t, "#f35f35", parseColor("f35f35"))
-	assert.Equal(t, defaultColor, parseColor("f35f"))
+	assert.Equal(t, "#f7b137", parseColor("#F7B137"))
+	assert.Equal(t, "#f7b137", parseColor("F7B137"))
+	assert.Equal(t, "#f7b137", parseColor("#f7b137"))
+	assert.Equal(t, "#f7b137", parseColor("f7b137"))
+	assert.Equal(t, "#f7b", parseColor("#F7B"))
+	assert.Equal(t, "#f7b", parseColor("F7B"))
+	assert.Equal(t, "#f7b", parseColor("#f7b"))
+	assert.Equal(t, "#f7b", parseColor("f7b"))
+	assert.Equal(t, "", parseColor("#f7b137aa"))
+	assert.Equal(t, "", parseColor("#f7baa"))
+	assert.Equal(t, "", parseColor("#f7b1"))
 }

@@ -2,9 +2,8 @@ package badge
 
 import (
 	"regexp"
+	"strings"
 )
-
-const defaultColor = "#1bacbf"
 
 var cssColorNames = map[string]struct{}{
 	"aliceblue":            {},
@@ -157,7 +156,7 @@ var cssColorNames = map[string]struct{}{
 }
 
 func isValidHexColor(str string) bool {
-	hexColorPattern := regexp.MustCompile(`^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$`)
+	hexColorPattern := regexp.MustCompile(`^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$`)
 	matched := hexColorPattern.FindStringSubmatch(str)
 	return matched != nil
 }
@@ -168,13 +167,19 @@ func isValidCSSColorName(str string) bool {
 }
 
 func parseColor(str string) string {
-	if color := "#" + str; isValidHexColor(color) {
-		return color
+	lowercaseStr := strings.ToLower(str)
+
+	if isValidHexColor(lowercaseStr) {
+		if lowercaseStr[0] != '#' {
+			return "#" + lowercaseStr
+		}
+
+		return lowercaseStr
 	}
 
-	if isValidCSSColorName(str) {
-		return str
+	if isValidCSSColorName(lowercaseStr) {
+		return lowercaseStr
 	}
 
-	return defaultColor
+	return ""
 }
