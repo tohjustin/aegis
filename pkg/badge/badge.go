@@ -23,6 +23,13 @@ const (
 	SemaphoreCIStyle Style = "semaphoreci"
 )
 
+const (
+	// DefaultColor represents the default color
+	DefaultColor string = "#1bacbf"
+	// DefaultStyle represents the default style
+	DefaultStyle Style = ClassicStyle
+)
+
 // SupportedStyles contains a list of all supported badge styles
 var SupportedStyles = [...]Style{ClassicStyle, FlatStyle, PlasticStyle, SemaphoreCIStyle}
 
@@ -69,9 +76,6 @@ type badgeDimensions struct {
 	IconOffset    int
 }
 
-const defaultColor = "#1bacbf"
-const defaultStyle = ClassicStyle
-
 // generateBadge converts badge parameters into dimensions for generating SVG badge
 func generateBadge(params *Params) (*badgeDimensions, error) {
 	badgeParams := params
@@ -80,11 +84,11 @@ func generateBadge(params *Params) (*badgeDimensions, error) {
 	}
 	badgeColor := parseColor(badgeParams.Color)
 	if badgeColor == "" {
-		badgeColor = defaultColor
+		badgeColor = DefaultColor
 	}
 	badgeStyle := badgeParams.Style
 	if badgeStyle == Style("") {
-		badgeStyle = defaultStyle
+		badgeStyle = DefaultStyle
 	}
 
 	var newBadge badgeDimensions

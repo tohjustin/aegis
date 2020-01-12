@@ -27,7 +27,7 @@ var testCases = (func() []testCase {
 
 		// default style case
 		if testStyle == "" {
-			expectedStyle = defaultStyle
+			expectedStyle = DefaultStyle
 		}
 
 		// Semaphore style badges converts text to uppercase
@@ -56,7 +56,7 @@ var testCases = (func() []testCase {
 			{
 				name:     testNamePrefix + "BadgeWithDefaultParams",
 				input:    Params{},
-				expected: Params{Style: defaultStyle, Color: defaultColor},
+				expected: Params{Style: DefaultStyle, Color: DefaultColor},
 			},
 			{
 				name:     testNamePrefix + "BadgeWithColorName1",
@@ -71,7 +71,7 @@ var testCases = (func() []testCase {
 			{
 				name:     testNamePrefix + "BadgeWithInvalidColorName",
 				input:    Params{Style: testStyle, Color: "rainbow"},
-				expected: Params{Style: expectedStyle, Color: defaultColor},
+				expected: Params{Style: expectedStyle, Color: DefaultColor},
 			},
 			{
 				name:     testNamePrefix + "BadgeWithShortHexColorCode1",
@@ -101,22 +101,22 @@ var testCases = (func() []testCase {
 			{
 				name:     testNamePrefix + "BadgeWithInvalidColorCode",
 				input:    Params{Style: testStyle, Color: "#f7b137aa"},
-				expected: Params{Style: expectedStyle, Color: defaultColor},
+				expected: Params{Style: expectedStyle, Color: DefaultColor},
 			},
 			{
 				name:     testNamePrefix + "BadgeWithIcon",
 				input:    Params{Style: testStyle, Icon: "solid/star"},
-				expected: Params{Style: expectedStyle, Color: defaultColor, Icon: "solid/star"},
+				expected: Params{Style: expectedStyle, Color: DefaultColor, Icon: "solid/star"},
 			},
 			{
 				name:     testNamePrefix + "BadgeWithInvalidIcon1",
 				input:    Params{Style: testStyle, Icon: "solid/STAR"},
-				expected: Params{Style: expectedStyle, Color: defaultColor, Icon: ""},
+				expected: Params{Style: expectedStyle, Color: DefaultColor, Icon: ""},
 			},
 			{
 				name:     testNamePrefix + "BadgeWithInvalidIcon2",
 				input:    Params{Style: testStyle, Icon: "invalid-icon"},
-				expected: Params{Style: expectedStyle, Color: defaultColor},
+				expected: Params{Style: expectedStyle, Color: DefaultColor},
 			},
 		}...)
 	}
