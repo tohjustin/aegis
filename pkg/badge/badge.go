@@ -17,14 +17,14 @@ type Style string
 
 // List of supported badge styles
 const (
-	ClassicStyle   Style = "classic"
-	FlatStyle      Style = "flat"
-	PlasticStyle   Style = "plastic"
-	SemaphoreStyle Style = "semaphore"
+	ClassicStyle     Style = "classic"
+	FlatStyle        Style = "flat"
+	PlasticStyle     Style = "plastic"
+	SemaphoreCIStyle Style = "semaphoreci"
 )
 
 // SupportedStyles contains a list of all supported badge styles
-var SupportedStyles = [...]Style{ClassicStyle, FlatStyle, PlasticStyle, SemaphoreStyle}
+var SupportedStyles = [...]Style{ClassicStyle, FlatStyle, PlasticStyle, SemaphoreCIStyle}
 
 // Params holds badge parameters
 type Params struct {
@@ -117,10 +117,10 @@ func generateBadge(params *Params) (*badgeDimensions, error) {
 			Subject:          badgeParams.Subject,
 			SubjectFontColor: "#fff",
 		}
-	case SemaphoreStyle:
+	case SemaphoreCIStyle:
 		newBadge = badgeDimensions{
-			Style:            SemaphoreStyle,
-			Template:         badgeTemplates[SemaphoreStyle],
+			Style:            SemaphoreCIStyle,
+			Template:         badgeTemplates[SemaphoreCIStyle],
 			Color:            badgeColor,
 			FontFamily:       "Verdana",
 			FontSize:         9,
