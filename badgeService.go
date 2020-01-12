@@ -15,10 +15,11 @@ func badgeServiceWriteResponse(w http.ResponseWriter, response string) {
 }
 
 func badgeServiceErrorHandler(w http.ResponseWriter, r *http.Request) {
-	style := r.URL.Query().Get("style")
-
-	createOptions := badge.Options{Style: badge.Style(style)}
-	generatedBadge, err := badge.Create("badger", "400 Bad Request", &createOptions)
+	generatedBadge, err := badge.Create(&badge.Params{
+		Style:   badge.Style(r.URL.Query().Get("style")),
+		Subject: "badger",
+		Status:  "400 Bad Request",
+	})
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println(err)
@@ -29,14 +30,13 @@ func badgeServiceErrorHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func badgeServiceHandler(w http.ResponseWriter, r *http.Request) {
-	color := r.URL.Query().Get("color")
-	icon := r.URL.Query().Get("icon")
-	status := r.URL.Query().Get("status")
-	style := r.URL.Query().Get("style")
-	subject := r.URL.Query().Get("subject")
-
-	createOptions := badge.Options{Color: color, Icon: icon, Style: badge.Style(style)}
-	generatedBadge, err := badge.Create(subject, status, &createOptions)
+	generatedBadge, err := badge.Create(&badge.Params{
+		Style:   badge.Style(r.URL.Query().Get("style")),
+		Subject: r.URL.Query().Get("subject"),
+		Status:  r.URL.Query().Get("status"),
+		Color:   r.URL.Query().Get("color"),
+		Icon:    r.URL.Query().Get("icon"),
+	})
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println(err)

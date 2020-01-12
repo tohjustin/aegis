@@ -202,12 +202,15 @@ func (service *bitbucketService) Handler(w http.ResponseWriter, r *http.Request)
 	if querySubject := r.URL.Query().Get("subject"); querySubject != "" {
 		subject = querySubject
 	}
-	icon := r.URL.Query().Get("icon")
-	style := r.URL.Query().Get("style")
 
 	// Generate badge
-	createOptions := badge.Options{Color: color, Icon: icon, Style: badge.Style(style)}
-	generatedBadge, err := badge.Create(subject, status, &createOptions)
+	generatedBadge, err := badge.Create(&badge.Params{
+		Style:   badge.Style(r.URL.Query().Get("style")),
+		Subject: subject,
+		Status:  status,
+		Color:   color,
+		Icon:    r.URL.Query().Get("icon"),
+	})
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println(err)

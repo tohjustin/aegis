@@ -21,7 +21,7 @@ Use the following list of available query parameters to configure your badge app
 | color           | Configures or overwrites badge primary color | RGB Hex Values, [CSS Color Keywords](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value)       | "fff", "1BACBF", "mediumturquoise"            |
 | icon            | Adds font-awesome icon                       | Any one of the available [Font Awesome Icons](https://fontawesome.com/icons): `<ICON_STYLE>/<ICON_NAME>` | "brands/github", "regular/star", "solid/star" |
 | status          | Configures or overwrites badge status text   | -                                                                                                        | "license"                                     |
-| style           | Configures badge style                       | Any one of the 4 available badge styles (classic, flat, plastic, semaphore)                              | "classic", "flat", "plastic", "semaphore"     |
+| style           | Configures badge style                       | Any one of the 4 available badge styles (classic, flat, plastic, semaphoreci)                              | "classic", "flat", "plastic", "semaphoreci"     |
 | subject         | Configures or overwrites badge subject text  | -                                                                                                        | "MIT"                                         |
 
 ### Static Badge Service
