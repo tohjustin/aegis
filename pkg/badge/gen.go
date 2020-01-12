@@ -59,7 +59,7 @@ func run() error {
 				}
 
 				badgeTemplates = append(badgeTemplates, datum{
-					Name: strings.TrimSuffix(info.Name(), ".tmpl"),
+					Name:  strings.TrimSuffix(info.Name(), ".tmpl"),
 					Value: string(tmpl),
 				})
 			}
@@ -79,7 +79,7 @@ func run() error {
 				}
 
 				icons = append(icons, datum{
-					Name: strings.TrimSuffix(strings.TrimPrefix(path, "assets/icons/"), ".svg"),
+					Name:  strings.TrimSuffix(strings.TrimPrefix(path, "assets/icons/"), ".svg"),
 					Value: string(svg),
 				})
 			}
