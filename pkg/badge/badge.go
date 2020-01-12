@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"strings"
+	"text/template"
 )
 
 // Style determines the type of badge to generate
@@ -21,8 +22,15 @@ const (
 	SemaphoreStyle Style = "semaphore"
 )
 
-// Options holds badge parameters
-type Options struct {
+// SupportedStyles contains a list of all supported badge styles
+var SupportedStyles = [...]Style{ClassicStyle, FlatStyle, PlasticStyle, SemaphoreStyle}
+
+// Params holds badge parameters
+type Params struct {
+	// Subject determines the subject text of the badge.
+	Subject string
+	// Status determines the status text of the badge.
+	Status string
 	// Color determines the highlight color of the badge.
 	// Valid color values includes CSS color names (up to CSS Color Module Level 3) or HEX values (eg. "coral", "#1bacbf", "1bacbf", "fff", "#fff")
 	Color string
@@ -32,9 +40,10 @@ type Options struct {
 	Style Style
 }
 
-// badge holds dimensions used in generating SVG badge
-type badge struct {
+// badgeDimensions holds dimensions required for generating SVG badge
+type badgeDimensions struct {
 	Style        Style
+	Template     *template.Template
 	Color        string
 	FontFamily   string
 	FontSize     int
@@ -54,71 +63,87 @@ type badge struct {
 	SubjectTextWidth int
 	SubjectWidth     int
 
+	IconLabel     string
 	IconBase64Str string
 	IconOffset    int
 }
 
-// new computes SVG dimensions based on the given badge parameters & stores into `badge` data object
-func new(subject, status string, options *Options) (badge, error) {
-	badgeOptions := options
-	if badgeOptions == nil {
-		badgeOptions = &Options{}
+const defaultColor = "#1bacbf"
+const defaultStyle = ClassicStyle
+
+// generateBadge converts badge parameters into dimensions for generating SVG badge
+func generateBadge(params *Params) (*badgeDimensions, error) {
+	badgeParams := params
+	if badgeParams == nil {
+		badgeParams = &Params{}
+	}
+	badgeColor := parseColor(badgeParams.Color)
+	if badgeColor == "" {
+		badgeColor = defaultColor
+	}
+	badgeStyle := badgeParams.Style
+	if badgeStyle == Style("") {
+		badgeStyle = defaultStyle
 	}
 
-	var newBadge badge
-	switch badgeOptions.Style {
+	var newBadge badgeDimensions
+	switch badgeStyle {
 	case FlatStyle:
-		newBadge = badge{
+		newBadge = badgeDimensions{
 			Style:            FlatStyle,
-			Color:            parseColor(badgeOptions.Color),
+			Template:         badgeTemplates[FlatStyle],
+			Color:            badgeColor,
 			FontFamily:       "Verdana",
 			FontSize:         11,
 			PaddingInner:     4,
 			PaddingOuter:     6,
-			Status:           status,
+			Status:           badgeParams.Status,
 			StatusFontColor:  "#fff",
-			Subject:          subject,
+			Subject:          badgeParams.Subject,
 			SubjectFontColor: "#fff",
 		}
 	case PlasticStyle:
-		newBadge = badge{
+		newBadge = badgeDimensions{
 			Style:            PlasticStyle,
-			Color:            parseColor(badgeOptions.Color),
+			Template:         badgeTemplates[PlasticStyle],
+			Color:            badgeColor,
 			FontFamily:       "Verdana",
 			FontSize:         11,
 			PaddingInner:     4,
 			PaddingOuter:     6,
-			Status:           status,
+			Status:           badgeParams.Status,
 			StatusFontColor:  "#fff",
-			Subject:          subject,
+			Subject:          badgeParams.Subject,
 			SubjectFontColor: "#fff",
 		}
 	case SemaphoreStyle:
-		newBadge = badge{
+		newBadge = badgeDimensions{
 			Style:            SemaphoreStyle,
-			Color:            parseColor(badgeOptions.Color),
+			Template:         badgeTemplates[SemaphoreStyle],
+			Color:            badgeColor,
 			FontFamily:       "Verdana",
 			FontSize:         9,
 			PaddingInner:     10,
 			PaddingOuter:     10,
-			Status:           strings.ToUpper(status),
+			Status:           strings.ToUpper(badgeParams.Status),
 			StatusFontColor:  "#fff",
-			Subject:          strings.ToUpper(subject),
+			Subject:          strings.ToUpper(badgeParams.Subject),
 			SubjectFontColor: "#888",
 		}
 	case ClassicStyle:
 		fallthrough
 	default:
-		newBadge = badge{
+		newBadge = badgeDimensions{
 			Style:            ClassicStyle,
-			Color:            parseColor(badgeOptions.Color),
+			Template:         badgeTemplates[ClassicStyle],
+			Color:            badgeColor,
 			FontFamily:       "Verdana",
 			FontSize:         11,
 			PaddingInner:     4,
 			PaddingOuter:     6,
-			Status:           status,
+			Status:           badgeParams.Status,
 			StatusFontColor:  "#fff",
-			Subject:          subject,
+			Subject:          badgeParams.Subject,
 			SubjectFontColor: "#fff",
 		}
 	}
@@ -126,21 +151,21 @@ func new(subject, status string, options *Options) (badge, error) {
 	subjectTextWidth, err := computeTextWidth(newBadge.Subject, newBadge.FontSize,
 		newBadge.FontFamily)
 	if err != nil {
-		return newBadge, err
+		return nil, err
 	}
 
 	statusTextWidth, err := computeTextWidth(newBadge.Status, newBadge.FontSize,
 		newBadge.FontFamily)
 	if err != nil {
-		return newBadge, err
+		return nil, err
 	}
 
-	if badgeOptions.Icon != "" {
-		svgIcon, ok := fontAwesomeIcons[badgeOptions.Icon]
+	if badgeParams.Icon != "" {
+		svgIcon, ok := fontAwesomeIcons[badgeParams.Icon]
 		if ok {
-			// Set SVG icon color to match `newBadge.SubjectFontColor`,
-			// include font-awesome license into the base64-encoded result
+			// Encode icon into a base64 string
 			modifiedSvgIcon := "<svg fill=\"" + newBadge.SubjectFontColor + "\"" + svgIcon[len("<svg"):]
+			newBadge.IconLabel = badgeParams.Icon
 			newBadge.IconBase64Str = base64.StdEncoding.EncodeToString([]byte(modifiedSvgIcon))
 			newBadge.IconOffset = 3 + 13 // IconPadding + IconSize
 		}
@@ -156,24 +181,22 @@ func new(subject, status string, options *Options) (badge, error) {
 
 	newBadge.TotalWidth = newBadge.SubjectWidth + newBadge.StatusWidth
 
-	return newBadge, err
+	if newBadge.Template == nil {
+		return nil, fmt.Errorf("Badge template does not exist: %s", params.Style)
+	}
+
+	return &newBadge, nil
 }
 
 // Create generates a SVG badge
-func Create(subject, status string, options *Options) (string, error) {
-	newBadge, err := new(subject, status, options)
+func Create(params *Params) (string, error) {
+	newBadge, err := generateBadge(params)
 	if err != nil {
 		return "", err
 	}
 
-	t, ok := badgeTemplates[newBadge.Style]
-	if !ok {
-		return "", fmt.Errorf("badge template does not exist: %s", options.Style)
-	}
-
 	var buf bytes.Buffer
-	err = t.Execute(&buf, newBadge)
-	if err != nil {
+	if err = newBadge.Template.Execute(&buf, newBadge); err != nil {
 		return "", err
 	}
 
