@@ -51,18 +51,25 @@ func newGitlabServiceHandler() GitRepositoryService {
 	return &gitlabService{}
 }
 
-func (service *gitlabService) getForkCount(owner string, repo string) (int, error) {
-	url := fmt.Sprintf("https://gitlab.com/api/v4/projects/%s%%2F%s", owner, repo)
+func (service *gitlabService) fetch(url string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
-		return 0, err
+		return nil, err
 	}
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := (&http.Client{}).Do(req)
 	if err != nil {
-		log.Fatal("Do: ", err)
+		return nil, err
+	}
+
+	return resp, err
+}
+
+func (service *gitlabService) getForkCount(owner string, repo string) (int, error) {
+	url := fmt.Sprintf("https://gitlab.com/api/v4/projects/%s%%2F%s", owner, repo)
+	resp, err := service.fetch(url)
+	if err != nil {
+		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
@@ -70,7 +77,7 @@ func (service *gitlabService) getForkCount(owner string, repo string) (int, erro
 	var project gitlabProjectsResponse
 	if err := json.NewDecoder(resp.Body).Decode(&project); err != nil {
 		log.Println(err)
-		return -1, err
+		return 0, err
 	}
 
 	return project.ForksCount, nil
@@ -84,16 +91,9 @@ func (service *gitlabService) getIssueCount(owner string, repo string, issueStat
 	case "closed":
 		url = fmt.Sprintf("%s?state=closed", url)
 	}
-	req, err := http.NewRequest("GET", url, nil)
+	resp, err := service.fetch(url)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
-		return 0, err
-	}
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
@@ -102,7 +102,7 @@ func (service *gitlabService) getIssueCount(owner string, repo string, issueStat
 	issueCount, err := strconv.Atoi(xTotal)
 	if err != nil {
 		log.Println(err)
-		return -1, err
+		return 0, err
 	}
 
 	return issueCount, nil
@@ -120,16 +120,9 @@ func (service *gitlabService) getPullRequestCount(owner string, repo string, pul
 	case "merged":
 		url = fmt.Sprintf("%s?state=merged", url)
 	}
-	req, err := http.NewRequest("GET", url, nil)
+	resp, err := service.fetch(url)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
-		return 0, err
-	}
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
@@ -138,7 +131,7 @@ func (service *gitlabService) getPullRequestCount(owner string, repo string, pul
 	issueCount, err := strconv.Atoi(xTotal)
 	if err != nil {
 		log.Println(err)
-		return -1, err
+		return 0, err
 	}
 
 	return issueCount, nil
@@ -146,16 +139,9 @@ func (service *gitlabService) getPullRequestCount(owner string, repo string, pul
 
 func (service *gitlabService) getStarCount(owner string, repo string) (int, error) {
 	url := fmt.Sprintf("https://gitlab.com/api/v4/projects/%s%%2F%s", owner, repo)
-	req, err := http.NewRequest("GET", url, nil)
+	resp, err := service.fetch(url)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
-		return 0, err
-	}
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
@@ -163,7 +149,7 @@ func (service *gitlabService) getStarCount(owner string, repo string) (int, erro
 	var project gitlabProjectsResponse
 	if err := json.NewDecoder(resp.Body).Decode(&project); err != nil {
 		log.Println(err)
-		return -1, err
+		return 0, err
 	}
 
 	return project.StarCount, nil
@@ -186,17 +172,22 @@ func (service *gitlabService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	case "issues":
 		state := r.URL.Query().Get("state")
 		switch state {
+		case "":
+			subject = "issues"
 		case "opened":
 			subject = "opened issues"
 		case "closed":
 			subject = "closed issues"
 		default:
-			subject = "issues"
+			badRequest(w)
+			return
 		}
 		value, err = service.getIssueCount(owner, repo, state)
 	case "merge-requests":
 		state := r.URL.Query().Get("state")
 		switch state {
+		case "":
+			subject = "MRs"
 		case "opened":
 			subject = "opened MRs"
 		case "closed":
@@ -206,7 +197,8 @@ func (service *gitlabService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		case "merged":
 			subject = "merged MRs"
 		default:
-			subject = "MRs"
+			badRequest(w)
+			return
 		}
 		value, err = service.getPullRequestCount(owner, repo, state)
 	case "stars":
