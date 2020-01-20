@@ -36,9 +36,9 @@ func newRouter() http.Handler {
 	mux := mux.NewRouter()
 	mux.UseEncodedPath()
 	mux.Handle(`/static`, staticService).Methods("GET")
-	mux.Handle(`/bitbucket/{owner}/{repo}/{requestType}`, bitbucketService).Methods("GET")
-	mux.Handle(`/github/{owner}/{repo}/{requestType}`, githubService).Methods("GET")
-	mux.Handle(`/gitlab/{owner}/{repo}/{requestType}`, gitlabService).Methods("GET")
+	mux.Handle(`/bitbucket/{method}/{owner}/{repo}`, bitbucketService).Methods("GET")
+	mux.Handle(`/github/{method}/{owner}/{repo}`, githubService).Methods("GET")
+	mux.Handle(`/gitlab/{method}/{owner}/{repo}`, gitlabService).Methods("GET")
 
 	return mux
 }

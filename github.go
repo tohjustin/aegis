@@ -129,13 +129,13 @@ func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	routeVariables := mux.Vars(r)
 	owner := routeVariables["owner"]
 	repo := routeVariables["repo"]
-	requestType := routeVariables["requestType"]
+	method := routeVariables["method"]
 
 	// Fetch data
 	var color, status, subject string
 	var value int
 	var err error
-	switch requestType {
+	switch method {
 	case "forks":
 		subject = "forks"
 		value, err = service.getForkCount(owner, repo)
@@ -167,7 +167,7 @@ func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		subject = "stars"
 		value, err = service.getStarCount(owner, repo)
 	default:
-		panic(requestType)
+		panic(method)
 		notFound(w)
 		return
 	}
