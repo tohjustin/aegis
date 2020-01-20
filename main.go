@@ -13,18 +13,32 @@ import (
 
 const defaultPort = "8080"
 
+// BadgeService represents a badge service
+type BadgeService interface {
+	http.Handler
+}
+
+// GitRepositoryService represents a badge service for git respository providers
+type GitRepositoryService interface {
+	BadgeService
+	getForkCount(owner string, repo string) (int, error)
+	getIssueCount(owner string, repo string, issueState string) (int, error)
+	getPullRequestCount(owner string, repo string, pullRequestState string) (int, error)
+	getStarCount(owner string, repo string) (int, error)
+}
+
 func newRouter() http.Handler {
-	staticService := NewStaticService()
-	bitbucketService := NewBitbucketService()
-	githubService := NewGithubService()
-	gitlabService := NewGitlabService()
+	staticService := newStaticServiceHandler()
+	bitbucketService := newBitbucketServiceHandler()
+	githubService := newGithubServiceHandler()
+	gitlabService := newGitlabServiceHandler()
 
 	mux := mux.NewRouter()
 	mux.UseEncodedPath()
-	mux.HandleFunc(`/static`, staticService.Handler).Methods("GET")
-	mux.HandleFunc(`/bitbucket/{owner}/{repo}/{requestType}`, bitbucketService.Handler).Methods("GET")
-	mux.HandleFunc(`/github/{owner}/{repo}/{requestType}`, githubService.Handler).Methods("GET")
-	mux.HandleFunc(`/gitlab/{owner}/{repo}/{requestType}`, gitlabService.Handler).Methods("GET")
+	mux.Handle(`/static`, staticService).Methods("GET")
+	mux.Handle(`/bitbucket/{owner}/{repo}/{requestType}`, bitbucketService).Methods("GET")
+	mux.Handle(`/github/{owner}/{repo}/{requestType}`, githubService).Methods("GET")
+	mux.Handle(`/gitlab/{owner}/{repo}/{requestType}`, gitlabService).Methods("GET")
 
 	return mux
 }

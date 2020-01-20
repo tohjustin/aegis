@@ -11,15 +11,16 @@ import (
 	"github.com/tohjustin/badger/pkg/badge"
 )
 
-type BitbucketFilteredResponse struct {
+type bitbucketService struct{}
+
+type bitbucketFilteredResponse struct {
 	Size int `json:"size"`
 }
 
-func NewBitbucketService() RepositoryService {
+// newBitbucketServiceHandler returns a HTTP handler for the Bitbucket badge service
+func newBitbucketServiceHandler() GitRepositoryService {
 	return &bitbucketService{}
 }
-
-type bitbucketService struct{}
 
 func (service *bitbucketService) getForkCount(owner string, repo string) (int, error) {
 	url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/%s/forks?&fields=size", owner, repo)
@@ -37,7 +38,7 @@ func (service *bitbucketService) getForkCount(owner string, repo string) (int, e
 	}
 	defer resp.Body.Close()
 
-	var forks BitbucketFilteredResponse
+	var forks bitbucketFilteredResponse
 	if err := json.NewDecoder(resp.Body).Decode(&forks); err != nil {
 		log.Println(err)
 		return -1, err
@@ -80,7 +81,7 @@ func (service *bitbucketService) getIssueCount(owner string, repo string, issueS
 	}
 	defer resp.Body.Close()
 
-	var issues BitbucketFilteredResponse
+	var issues bitbucketFilteredResponse
 	if err := json.NewDecoder(resp.Body).Decode(&issues); err != nil {
 		log.Println(err)
 		return 0, err
@@ -115,7 +116,7 @@ func (service *bitbucketService) getPullRequestCount(owner string, repo string, 
 	}
 	defer resp.Body.Close()
 
-	var pullRequests BitbucketFilteredResponse
+	var pullRequests bitbucketFilteredResponse
 	if err := json.NewDecoder(resp.Body).Decode(&pullRequests); err != nil {
 		log.Println(err)
 		return 0, err
@@ -124,11 +125,11 @@ func (service *bitbucketService) getPullRequestCount(owner string, repo string, 
 	return pullRequests.Size, nil
 }
 
-func (service *bitbucketService) getStargazerCount(owner string, repo string) (int, error) {
+func (service *bitbucketService) getStarCount(owner string, repo string) (int, error) {
 	return -2, nil
 }
 
-func (service *bitbucketService) Handler(w http.ResponseWriter, r *http.Request) {
+func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	routeVariables := mux.Vars(r)
 	owner := routeVariables["owner"]
 	repo := routeVariables["repo"]
@@ -182,15 +183,16 @@ func (service *bitbucketService) Handler(w http.ResponseWriter, r *http.Request)
 		value, err = service.getPullRequestCount(owner, repo, state)
 	case "stars":
 		subject = "stars"
-		value, err = service.getStargazerCount(owner, repo)
+		value, err = service.getStarCount(owner, repo)
+	default:
+		notFound(w)
+		return
 	}
-
-	// Compute status
 	if err != nil {
-		status = err.Error()
-	} else {
-		status = strconv.Itoa(value)
+		internalServerError(w)
+		return
 	}
+	status = strconv.Itoa(value)
 
 	// Overwrite any badge texts
 	if queryColor := r.URL.Query().Get("color"); queryColor != "" {
@@ -212,8 +214,8 @@ func (service *bitbucketService) Handler(w http.ResponseWriter, r *http.Request)
 		Icon:    r.URL.Query().Get("icon"),
 	})
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 

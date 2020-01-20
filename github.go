@@ -13,16 +13,12 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type RepositoryService interface {
-	getForkCount(owner string, repo string) (int, error)
-	getIssueCount(owner string, repo string, issueState string) (int, error)
-	getPullRequestCount(owner string, repo string, pullRequestState string) (int, error)
-	getStargazerCount(owner string, repo string) (int, error)
-
-	Handler(w http.ResponseWriter, r *http.Request)
+type githubService struct {
+	client *githubv4.Client
 }
 
-func NewGithubService() RepositoryService {
+// newGithubServiceHandler returns a HTTP handler for the Github badge service
+func newGithubServiceHandler() GitRepositoryService {
 	// Create new Github GraphQL client
 	tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")})
 	httpClient := oauth2.NewClient(context.Background(), tokenSource)
@@ -30,10 +26,6 @@ func NewGithubService() RepositoryService {
 	return &githubService{
 		client: githubv4.NewClient(httpClient),
 	}
-}
-
-type githubService struct {
-	client *githubv4.Client
 }
 
 func (service *githubService) getForkCount(owner string, repo string) (int, error) {
@@ -116,7 +108,7 @@ func (service *githubService) getPullRequestCount(owner string, repo string, pul
 	return query.Repository.PullRequests.TotalCount, err
 }
 
-func (service *githubService) getStargazerCount(owner string, repo string) (int, error) {
+func (service *githubService) getStarCount(owner string, repo string) (int, error) {
 	var query struct {
 		Repository struct {
 			Stargazers struct {
@@ -133,7 +125,7 @@ func (service *githubService) getStargazerCount(owner string, repo string) (int,
 	return query.Repository.Stargazers.TotalCount, err
 }
 
-func (service *githubService) Handler(w http.ResponseWriter, r *http.Request) {
+func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	routeVariables := mux.Vars(r)
 	owner := routeVariables["owner"]
 	repo := routeVariables["repo"]
@@ -173,15 +165,17 @@ func (service *githubService) Handler(w http.ResponseWriter, r *http.Request) {
 		value, err = service.getPullRequestCount(owner, repo, state)
 	case "stars":
 		subject = "stars"
-		value, err = service.getStargazerCount(owner, repo)
+		value, err = service.getStarCount(owner, repo)
+	default:
+		panic(requestType)
+		notFound(w)
+		return
 	}
-
-	// Compute status
 	if err != nil {
-		status = err.Error()
-	} else {
-		status = strconv.Itoa(value)
+		internalServerError(w)
+		return
 	}
+	status = strconv.Itoa(value)
 
 	// Overwrite any badge texts
 	if queryColor := r.URL.Query().Get("color"); queryColor != "" {
@@ -203,8 +197,8 @@ func (service *githubService) Handler(w http.ResponseWriter, r *http.Request) {
 		Icon:    r.URL.Query().Get("icon"),
 	})
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 

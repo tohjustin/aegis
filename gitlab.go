@@ -12,11 +12,13 @@ import (
 	"github.com/tohjustin/badger/pkg/badge"
 )
 
-type GitlabFilteredResponse struct {
+type gitlabService struct{}
+
+type gitlabFilteredResponse struct {
 	Size int `json:"size"`
 }
 
-type GitlabProjectsResponse struct {
+type gitlabProjectsResponse struct {
 	ID                int           `json:"id"`
 	Description       string        `json:"description"`
 	Name              string        `json:"name"`
@@ -44,11 +46,10 @@ type GitlabProjectsResponse struct {
 	} `json:"namespace"`
 }
 
-func NewGitlabService() RepositoryService {
+// newGitlabServiceHandler returns a HTTP handler for the Gitlab badge service
+func newGitlabServiceHandler() GitRepositoryService {
 	return &gitlabService{}
 }
-
-type gitlabService struct{}
 
 func (service *gitlabService) getForkCount(owner string, repo string) (int, error) {
 	url := fmt.Sprintf("https://gitlab.com/api/v4/projects/%s%%2F%s", owner, repo)
@@ -66,7 +67,7 @@ func (service *gitlabService) getForkCount(owner string, repo string) (int, erro
 	}
 	defer resp.Body.Close()
 
-	var project GitlabProjectsResponse
+	var project gitlabProjectsResponse
 	if err := json.NewDecoder(resp.Body).Decode(&project); err != nil {
 		log.Println(err)
 		return -1, err
@@ -143,7 +144,7 @@ func (service *gitlabService) getPullRequestCount(owner string, repo string, pul
 	return issueCount, nil
 }
 
-func (service *gitlabService) getStargazerCount(owner string, repo string) (int, error) {
+func (service *gitlabService) getStarCount(owner string, repo string) (int, error) {
 	url := fmt.Sprintf("https://gitlab.com/api/v4/projects/%s%%2F%s", owner, repo)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -159,7 +160,7 @@ func (service *gitlabService) getStargazerCount(owner string, repo string) (int,
 	}
 	defer resp.Body.Close()
 
-	var project GitlabProjectsResponse
+	var project gitlabProjectsResponse
 	if err := json.NewDecoder(resp.Body).Decode(&project); err != nil {
 		log.Println(err)
 		return -1, err
@@ -168,7 +169,7 @@ func (service *gitlabService) getStargazerCount(owner string, repo string) (int,
 	return project.StarCount, nil
 }
 
-func (service *gitlabService) Handler(w http.ResponseWriter, r *http.Request) {
+func (service *gitlabService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	routeVariables := mux.Vars(r)
 	owner := routeVariables["owner"]
 	repo := routeVariables["repo"]
@@ -210,15 +211,16 @@ func (service *gitlabService) Handler(w http.ResponseWriter, r *http.Request) {
 		value, err = service.getPullRequestCount(owner, repo, state)
 	case "stars":
 		subject = "stars"
-		value, err = service.getStargazerCount(owner, repo)
+		value, err = service.getStarCount(owner, repo)
+	default:
+		notFound(w)
+		return
 	}
-
-	// Compute status
 	if err != nil {
-		status = err.Error()
-	} else {
-		status = strconv.Itoa(value)
+		internalServerError(w)
+		return
 	}
+	status = strconv.Itoa(value)
 
 	// Overwrite any badge texts
 	if queryColor := r.URL.Query().Get("color"); queryColor != "" {
@@ -240,8 +242,8 @@ func (service *gitlabService) Handler(w http.ResponseWriter, r *http.Request) {
 		Icon:    r.URL.Query().Get("icon"),
 	})
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		fmt.Println(err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
