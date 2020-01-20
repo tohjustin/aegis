@@ -22,18 +22,25 @@ func newBitbucketServiceHandler() GitRepositoryService {
 	return &bitbucketService{}
 }
 
-func (service *bitbucketService) getForkCount(owner string, repo string) (int, error) {
-	url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/%s/forks?&fields=size", owner, repo)
+func (service *bitbucketService) fetch(url string) (*http.Response, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
-		return 0, err
+		return nil, err
 	}
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := (&http.Client{}).Do(req)
 	if err != nil {
-		log.Fatal("Do: ", err)
+		return nil, err
+	}
+
+	return resp, err
+}
+
+func (service *bitbucketService) getForkCount(owner string, repo string) (int, error) {
+	url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/%s/forks?&fields=size", owner, repo)
+	resp, err := service.fetch(url)
+	if err != nil {
+		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
@@ -67,16 +74,9 @@ func (service *bitbucketService) getIssueCount(owner string, repo string, issueS
 	case "closed":
 		url = fmt.Sprintf("%s?&fields=size&q=(state+=+\"%s\")", url, issueState)
 	}
-	req, err := http.NewRequest("GET", url, nil)
+	resp, err := service.fetch(url)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
-		return 0, err
-	}
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
@@ -102,16 +102,9 @@ func (service *bitbucketService) getPullRequestCount(owner string, repo string, 
 	case "declined":
 		url = fmt.Sprintf("%s?&fields=size&q=(state+=+\"%s\")", url, pullRequestState)
 	}
-	req, err := http.NewRequest("GET", url, nil)
+	resp, err := service.fetch(url)
 	if err != nil {
-		log.Fatal("NewRequest: ", err)
-		return 0, err
-	}
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal("Do: ", err)
+		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
@@ -146,6 +139,8 @@ func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	case "issues":
 		state := r.URL.Query().Get("state")
 		switch state {
+		case "":
+			subject = "issues"
 		case "new":
 			subject = "new issues"
 		case "open":
@@ -163,12 +158,15 @@ func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		case "closed":
 			subject = "closed issues"
 		default:
-			subject = "issues"
+			badRequest(w)
+			return
 		}
 		value, err = service.getIssueCount(owner, repo, state)
 	case "pull-requests":
 		state := r.URL.Query().Get("state")
 		switch state {
+		case "":
+			subject = "PRs"
 		case "merged":
 			subject = "merged PRs"
 		case "superseded":
@@ -178,7 +176,8 @@ func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		case "declined":
 			subject = "declined PRs"
 		default:
-			subject = "PRs"
+			badRequest(w)
+			return
 		}
 		value, err = service.getPullRequestCount(owner, repo, state)
 	case "stars":
