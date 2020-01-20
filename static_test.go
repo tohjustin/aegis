@@ -16,7 +16,7 @@ func createBadge(params *badge.Params) string {
 	return generatedBadge
 }
 
-func TestBadgeServiceHandler(t *testing.T) {
+func TestStaticBadgeServiceHandler(t *testing.T) {
 	t.Parallel()
 
 	runHTTPTest(t, httpTestCase{
@@ -35,7 +35,7 @@ func TestBadgeServiceHandler(t *testing.T) {
 	})
 }
 
-func TestBadgeServiceHandlerWithCSSColorName(t *testing.T) {
+func TestStaticBadgeServiceHandlerWithCSSColorName(t *testing.T) {
 	t.Parallel()
 
 	runHTTPTest(t, httpTestCase{
@@ -54,7 +54,7 @@ func TestBadgeServiceHandlerWithCSSColorName(t *testing.T) {
 	})
 }
 
-func TestBadgeServiceHandlerWithNoColor(t *testing.T) {
+func TestStaticBadgeServiceHandlerWithNoColor(t *testing.T) {
 	t.Parallel()
 
 	runHTTPTest(t, httpTestCase{
@@ -73,7 +73,7 @@ func TestBadgeServiceHandlerWithNoColor(t *testing.T) {
 	})
 }
 
-func TestBadgeServiceHandlerWithBadColor(t *testing.T) {
+func TestStaticBadgeServiceHandlerWithBadColor(t *testing.T) {
 	t.Parallel()
 
 	runHTTPTest(t, httpTestCase{
@@ -92,7 +92,7 @@ func TestBadgeServiceHandlerWithBadColor(t *testing.T) {
 	})
 }
 
-func TestBadgeServiceHandlerWithIconQuery(t *testing.T) {
+func TestStaticBadgeServiceHandlerWithIconQuery(t *testing.T) {
 	t.Parallel()
 
 	runHTTPTest(t, httpTestCase{
@@ -111,7 +111,7 @@ func TestBadgeServiceHandlerWithIconQuery(t *testing.T) {
 	})
 }
 
-func TestBadgeServiceHandlerWithBadIconQuery(t *testing.T) {
+func TestStaticBadgeServiceHandlerWithBadIconQuery(t *testing.T) {
 	t.Parallel()
 
 	runHTTPTest(t, httpTestCase{
@@ -129,7 +129,7 @@ func TestBadgeServiceHandlerWithBadIconQuery(t *testing.T) {
 	})
 }
 
-func TestBadgeServiceHandlerWithStyleQuery(t *testing.T) {
+func TestStaticBadgeServiceHandlerWithStyleQuery(t *testing.T) {
 	t.Parallel()
 
 	runHTTPTest(t, httpTestCase{
@@ -148,7 +148,7 @@ func TestBadgeServiceHandlerWithStyleQuery(t *testing.T) {
 	})
 }
 
-func TestBadgeServiceHandlerWithBadStyleQuery(t *testing.T) {
+func TestStaticBadgeServiceHandlerWithBadStyleQuery(t *testing.T) {
 	t.Parallel()
 
 	runHTTPTest(t, httpTestCase{
@@ -167,7 +167,7 @@ func TestBadgeServiceHandlerWithBadStyleQuery(t *testing.T) {
 	})
 }
 
-func TestBadgeServiceHandlerWithBadHTTPMethods(t *testing.T) {
+func TestStaticBadgeServiceHandlerWithBadHTTPMethods(t *testing.T) {
 	t.Parallel()
 
 	// service only accepts "GET" requests
@@ -190,22 +190,4 @@ func TestBadgeServiceHandlerWithBadHTTPMethods(t *testing.T) {
 			expectedBody:    "",
 		})
 	}
-}
-
-func TestBadgeServiceErrorHandler(t *testing.T) {
-	t.Parallel()
-
-	runHTTPTest(t, httpTestCase{
-		requestMethod: "GET",
-		requestPath:   "/",
-		expectedHeaders: map[string]string{
-			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
-			"Content-Type":  "image/svg+xml;utf-8",
-		},
-		expectedStatus: 200,
-		expectedBody: createBadge(&badge.Params{
-			Subject: "badger",
-			Status:  "400 Bad Request",
-		}),
-	})
 }
