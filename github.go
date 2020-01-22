@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -17,15 +16,17 @@ type githubService struct {
 	client *githubv4.Client
 }
 
-// newGithubServiceHandler returns a HTTP handler for the Github badge service
-func newGithubServiceHandler() GitRepositoryService {
+// NewGithubService returns a HTTP handler for the Github badge service
+func NewGithubService(accessToken string) (GitProviderService, error) {
+	if accessToken == "" {
+		return nil, fmt.Errorf("missing GitHub access token")
+	}
+
 	// Create new Github GraphQL client
-	tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")})
+	tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
 	httpClient := oauth2.NewClient(context.Background(), tokenSource)
 
-	return &githubService{
-		client: githubv4.NewClient(httpClient),
-	}
+	return &githubService{client: githubv4.NewClient(httpClient)}, nil
 }
 
 func (service *githubService) getForkCount(owner string, repo string) (int, error) {

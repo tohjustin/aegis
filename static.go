@@ -8,8 +8,8 @@ import (
 
 type staticService struct{}
 
-// NewStaticServiceHander returns a HTTP handler for the static badge service
-func newStaticServiceHandler() BadgeService {
+// NewStaticService returns a HTTP handler for the static badge service
+func NewStaticService() BadgeService {
 	return &staticService{}
 }
 

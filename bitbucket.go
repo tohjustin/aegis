@@ -17,8 +17,8 @@ type bitbucketFilteredResponse struct {
 	Size int `json:"size"`
 }
 
-// newBitbucketServiceHandler returns a HTTP handler for the Bitbucket badge service
-func newBitbucketServiceHandler() GitRepositoryService {
+// NewBitbucketService returns a HTTP handler for the Bitbucket badge service
+func NewBitbucketService() GitProviderService {
 	return &bitbucketService{}
 }
 

@@ -20,26 +20,36 @@ func runHTTPTest(t *testing.T, testCase httpTestCase) {
 		t.Fatal(err)
 	}
 
-	respW := httptest.NewRecorder()
-	router := newRouter()
-	router.ServeHTTP(respW, req)
+	// TODO: Create proper mock service generators
+	mockStaticService := NewStaticService()
+	mockGitProviderService := NewGitlabService()
+
+	testServer := NewServer(
+		NewConfig(""),
+		&mockStaticService,
+		&mockGitProviderService,
+		&mockGitProviderService,
+		&mockGitProviderService,
+	)
+	res := httptest.NewRecorder()
+	testServer.Handler().ServeHTTP(res, req)
 
 	// Check response header
 	for fieldName, expectedFieldValue := range testCase.expectedHeaders {
-		if fieldValue := respW.HeaderMap.Get(fieldName); fieldValue != expectedFieldValue {
+		if fieldValue := res.HeaderMap.Get(fieldName); fieldValue != expectedFieldValue {
 			t.Errorf("handler returned wrong %v header: got %v want %v",
 				fieldName, fieldValue, expectedFieldValue)
 		}
 	}
 
 	// Check response status code
-	if status := respW.Code; status != testCase.expectedStatus {
+	if status := res.Code; status != testCase.expectedStatus {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, testCase.expectedStatus)
 	}
 
 	// Check response body
-	if body := respW.Body.String(); body != testCase.expectedBody {
+	if body := res.Body.String(); body != testCase.expectedBody {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			body, testCase.expectedBody)
 	}

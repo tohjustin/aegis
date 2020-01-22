@@ -46,8 +46,8 @@ type gitlabProjectsResponse struct {
 	} `json:"namespace"`
 }
 
-// newGitlabServiceHandler returns a HTTP handler for the Gitlab badge service
-func newGitlabServiceHandler() GitRepositoryService {
+// NewGitlabService returns a HTTP handler for the Gitlab badge service
+func NewGitlabService() GitProviderService {
 	return &gitlabService{}
 }
 
