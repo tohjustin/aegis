@@ -1,24 +1,29 @@
-# Golang CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-go/ for more details
-version: 2
+version: 2.1
 jobs:
   build:
+    working_directory: ~/go/src/github.com/tohjustin/badger
     docker:
-      - image: circleci/golang:1.10.1
-    #### TEMPLATE_NOTE: go expects specific checkout path representing url
-    #### expecting it in the form of
-    ####   /go/src/github.com/circleci/go-tool
-    ####   /go/src/bitbucket.org/circleci/go-tool
-    working_directory: /go/src/github.com/tohjustin/badger
+      - image: circleci/golang:1.13.6
     steps:
       - checkout
+      - restore_cache:
+          name: Restore Go Modules Cache
+          keys:
+            - go-mod-v1-{{ checksum "go.sum" }}
       - run:
           name: Download dependencies
           command: go get -v -t -d ./...
+      - save_cache:
+          name: Save Go Modules Cache
+          key: go-mod-v1-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
       - run:
-          name: Run Tests & Generate Test Coverage Report
-          command: go test -v ./... -coverprofile=coverage.txt -covermode=atomic
+          name: Run Tests
+          command: make cover
       - run:
           name: Upload Test Coverage Report
-          command: bash <(curl -s https://codecov.io/bash)
+          command: bash <(curl -s https://codecov.io/bash) -f coverage.txt
+      - run:
+          name: Build (demo)
+          command: make build
