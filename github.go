@@ -167,7 +167,6 @@ func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		subject = "stars"
 		value, err = service.getStarCount(owner, repo)
 	default:
-		panic(method)
 		notFound(w)
 		return
 	}
