@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/tohjustin/badger/pkg/badge"
@@ -191,7 +190,7 @@ func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		internalServerError(w)
 		return
 	}
-	status = strconv.Itoa(value)
+	status = formatIntegerWithMetricPrefix(value)
 
 	// Overwrite any badge texts
 	if queryColor := r.URL.Query().Get("color"); queryColor != "" {

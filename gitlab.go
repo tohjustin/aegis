@@ -212,7 +212,7 @@ func (service *gitlabService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		internalServerError(w)
 		return
 	}
-	status = strconv.Itoa(value)
+	status = formatIntegerWithMetricPrefix(value)
 
 	// Overwrite any badge texts
 	if queryColor := r.URL.Query().Get("color"); queryColor != "" {
