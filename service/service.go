@@ -1,20 +1,17 @@
 package service
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
-)
-
-const (
-	// DefaultPort default port server listens on
-	DefaultPort = 8080
+	"github.com/spf13/cobra"
+	"github.com/tohjustin/badger/service/config"
 )
 
 // BadgeService represents a badge service
@@ -34,6 +31,7 @@ type GitProviderService interface {
 // Info contains build information about the application
 type Info struct {
 	ExecutableName string
+	ShortName      string
 	LongName       string
 	Version        string
 	GitHash        string
@@ -48,8 +46,8 @@ type Config struct {
 
 // Application represents a badge generation application
 type Application struct {
-	info   Info
-	config *Config
+	info    Info
+	rootCmd *cobra.Command
 
 	staticService    *BadgeService
 	bitbucketService *GitProviderService
@@ -57,25 +55,24 @@ type Application struct {
 	gitlabService    *GitProviderService
 }
 
-// handler setup routes & returns a HTTP handler for the application server
-func (app *Application) handler() http.Handler {
-	mux := mux.NewRouter()
+func (app *Application) execute() {
+	// Setup dependencies
+	staticService := NewStaticService()
+	bitbucketService := NewBitbucketService()
+	githubService, err := NewGithubService(os.Getenv("GITHUB_ACCESS_TOKEN"))
+	if err != nil {
+		log.Fatalf("Unable to setup GitHub service: %v", err)
+	}
+	gitlabService := NewGitlabService()
+	app.staticService = &staticService
+	app.bitbucketService = &bitbucketService
+	app.githubService = &githubService
+	app.gitlabService = &gitlabService
 
-	mux.UseEncodedPath()
-	mux.Handle(`/static`, *app.staticService).Methods("GET")
-	mux.Handle(`/bitbucket/{method}/{owner}/{repo}`, *app.bitbucketService).Methods("GET")
-	mux.Handle(`/github/{method}/{owner}/{repo}`, *app.githubService).Methods("GET")
-	mux.Handle(`/gitlab/{method}/{owner}/{repo}`, *app.gitlabService).Methods("GET")
-
-	return mux
-}
-
-// Start starts the application
-func (app *Application) Start() {
 	httpServer := &http.Server{
-		Addr:         fmt.Sprintf(":%d", app.config.Port),
-		ReadTimeout:  app.config.ReadTimeout,
-		WriteTimeout: app.config.WriteTimeout,
+		Addr:         fmt.Sprintf(":%d", config.Port()),
+		ReadTimeout:  config.ReadTimeout(),
+		WriteTimeout: config.WriteTimeout(),
 		Handler:      app.handler(),
 	}
 
@@ -94,7 +91,8 @@ func (app *Application) Start() {
 		close(idleConnsClosed)
 	}()
 
-	log.Printf("Server listening on port %d...\n", app.config.Port)
+	// Start HTTP server
+	log.Printf("Server listening on port %d...\n", config.Port())
 	if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
 		log.Printf("Server ListenAndServe: %v\n", err)
 	}
@@ -102,41 +100,54 @@ func (app *Application) Start() {
 	<-idleConnsClosed
 }
 
-// newConfig returns a new set of server configuration
-func newConfig(port int) *Config {
-	return &Config{
-		Port:         port,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-	}
+// handler setup routes & returns a HTTP handler for the application server
+func (app *Application) handler() http.Handler {
+	mux := mux.NewRouter()
+
+	mux.UseEncodedPath()
+	mux.Handle(`/static`, *app.staticService).Methods("GET")
+	mux.Handle(`/bitbucket/{method}/{owner}/{repo}`, *app.bitbucketService).Methods("GET")
+	mux.Handle(`/github/{method}/{owner}/{repo}`, *app.githubService).Methods("GET")
+	mux.Handle(`/gitlab/{method}/{owner}/{repo}`, *app.gitlabService).Methods("GET")
+
+	return mux
+}
+
+// Start starts the application
+func (app *Application) Start() error {
+	return app.rootCmd.Execute()
 }
 
 // New creates and returns a new instance of Application.
 func New(appInfo Info) (*Application, error) {
-	githubAccessToken := os.Getenv("GITHUB_ACCESS_TOKEN")
-
-	port, err := strconv.Atoi(os.Getenv("PORT"))
-	if err != nil {
-		port = DefaultPort
-	}
-	config := newConfig(port)
-
-	staticService := NewStaticService()
-	bitbucketService := NewBitbucketService()
-	githubService, err := NewGithubService(githubAccessToken)
-	if err != nil {
-		return nil, err
-	}
-	gitlabService := NewGitlabService()
-
 	app := &Application{
-		info:             appInfo,
-		config:           config,
-		staticService:    &staticService,
-		bitbucketService: &bitbucketService,
-		githubService:    &githubService,
-		gitlabService:    &gitlabService,
+		info: appInfo,
 	}
+
+	// Setup commands
+	rootCmd := &cobra.Command{
+		Use:   appInfo.ExecutableName,
+		Short: appInfo.ShortName,
+		Long:  appInfo.LongName,
+		Run: func(cmd *cobra.Command, args []string) {
+			app.execute()
+		},
+	}
+	versionCmd := &cobra.Command{
+		Use:  "version",
+		Long: "Print the version number",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Printf("Badger v%s (%s)\n", appInfo.Version, appInfo.GitHash)
+		},
+	}
+	rootCmd.AddCommand(versionCmd)
+
+	// Setup Flags
+	flagSet := new(flag.FlagSet)
+	config.Flags(flagSet)
+	rootCmd.Flags().AddGoFlagSet(flagSet)
+
+	app.rootCmd = rootCmd
 
 	return app, nil
 }

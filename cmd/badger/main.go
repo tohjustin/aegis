@@ -8,17 +8,22 @@ import (
 )
 
 func main() {
+	handleErr := func(err error) {
+		if err != nil {
+			log.Fatalf("Failed to run the service: %v", err)
+		}
+	}
+
 	info := service.Info{
 		ExecutableName: "badger",
-		LongName:       "Badger Badge Generation Service",
+		LongName:       "Badger badge generation service",
 		Version:        version.Version,
 		GitHash:        version.GitHash,
 	}
 
 	svc, err := service.New(info)
-	if err != nil {
-		log.Fatalf("Failed to run the service: %v", err)
-	}
+	handleErr(err)
 
-	svc.Start()
+	err = svc.Start()
+	handleErr(err)
 }

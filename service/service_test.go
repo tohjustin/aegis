@@ -26,7 +26,6 @@ func runHTTPTest(t *testing.T, testCase httpTestCase) {
 
 	testServer := &Application{
 		info:             Info{},
-		config:           &Config{},
 		staticService:    &mockStaticService,
 		bitbucketService: &mockGitProviderService,
 		githubService:    &mockGitProviderService,
