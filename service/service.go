@@ -87,16 +87,16 @@ func (app *Application) Start() {
 		<-sigint
 
 		if err := httpServer.Shutdown(nil); err != nil {
-			log.Printf("HTTP service Shutdown: %v", err)
+			log.Printf("Server Shutdown: %v\n", err)
 		}
 
-		log.Printf("HTTP service shutdown successfully...")
+		log.Printf("Server shutdown successfully...\n")
 		close(idleConnsClosed)
 	}()
 
-	log.Printf("HTTP service listening on port %d...", app.config.Port)
+	log.Printf("Server listening on port %d...\n", app.config.Port)
 	if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
-		log.Printf("HTTP service ListenAndServe: %v", err)
+		log.Printf("Server ListenAndServe: %v\n", err)
 	}
 
 	<-idleConnsClosed

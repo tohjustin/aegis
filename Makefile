@@ -15,13 +15,14 @@ BUILDDIR := ${PREFIX}/cross
 
 # Populate version variables
 # Add to compile time flags
+BUILD_INFO_IMPORT_PATH=$(PKG)/internal/version
 VERSION := $(shell cat VERSION.txt)
-GITCOMMIT := $(shell git rev-parse --short HEAD)
+GITHASH := $(shell git rev-parse --short HEAD)
 GITUNTRACKEDCHANGES := $(shell git status --porcelain --untracked-files=no)
 ifneq ($(GITUNTRACKEDCHANGES),)
-	GITCOMMIT := $(GITCOMMIT)-dirty
+	GITHASH := $(GITHASH)-dirty
 endif
-CTIMEVAR=-X $(PKG)/version.GITCOMMIT=$(GITCOMMIT) -X $(PKG)/version.VERSION=$(VERSION)
+CTIMEVAR=-X $(BUILD_INFO_IMPORT_PATH).GitHash=$(GITHASH) -X $(BUILD_INFO_IMPORT_PATH).Version=$(VERSION)
 GO_LDFLAGS=-ldflags "-w $(CTIMEVAR)"
 GO_LDFLAGS_STATIC=-ldflags "-w $(CTIMEVAR) -extldflags -static"
 
@@ -41,14 +42,14 @@ build: $(NAME) ## Builds a dynamic executable or package
 
 $(NAME): $(wildcard *.go) $(wildcard */*.go) VERSION.txt
 	@echo "+ $@"
-	$(GO) build -tags "$(BUILDTAGS)" ${GO_LDFLAGS} -o $(NAME) .
+	$(GO) build -tags "$(BUILDTAGS)" ${GO_LDFLAGS} -o $(NAME) ./cmd/${NAME}
 
 .PHONY: static
 static: generate ## Builds a static executable
 	@echo "+ $@"
 	CGO_ENABLED=0 $(GO) build \
 		-tags "$(BUILDTAGS) static_build" \
-		${GO_LDFLAGS_STATIC} -o $(NAME) .
+		${GO_LDFLAGS_STATIC} -o $(NAME) ./cmd/${NAME}
 
 all: clean build fmt lint test staticcheck vet install ## Runs a clean, build, fmt, lint, test, staticcheck, vet and install
 
