@@ -1,10 +1,12 @@
-package main
+package service
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -12,7 +14,7 @@ import (
 
 const (
 	// DefaultPort default port server listens on
-	DefaultPort = "8080"
+	DefaultPort = 8080
 )
 
 // BadgeService represents a badge service
@@ -29,15 +31,24 @@ type GitProviderService interface {
 	getStarCount(owner string, repo string) (int, error)
 }
 
+// Info contains build information about the application
+type Info struct {
+	ExecutableName string
+	LongName       string
+	Version        string
+	GitHash        string
+}
+
 // Config represents a server's configuration
 type Config struct {
-	Port         string
+	Port         int
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
 }
 
-// Server represents a server instance
-type Server struct {
+// Application represents a badge generation application
+type Application struct {
+	info   Info
 	config *Config
 
 	staticService    *BadgeService
@@ -46,26 +57,26 @@ type Server struct {
 	gitlabService    *GitProviderService
 }
 
-// Handler returns a handler for the server
-func (s *Server) Handler() http.Handler {
+// handler setup routes & returns a HTTP handler for the application server
+func (app *Application) handler() http.Handler {
 	mux := mux.NewRouter()
 
 	mux.UseEncodedPath()
-	mux.Handle(`/static`, *s.staticService).Methods("GET")
-	mux.Handle(`/bitbucket/{method}/{owner}/{repo}`, *s.bitbucketService).Methods("GET")
-	mux.Handle(`/github/{method}/{owner}/{repo}`, *s.githubService).Methods("GET")
-	mux.Handle(`/gitlab/{method}/{owner}/{repo}`, *s.gitlabService).Methods("GET")
+	mux.Handle(`/static`, *app.staticService).Methods("GET")
+	mux.Handle(`/bitbucket/{method}/{owner}/{repo}`, *app.bitbucketService).Methods("GET")
+	mux.Handle(`/github/{method}/{owner}/{repo}`, *app.githubService).Methods("GET")
+	mux.Handle(`/gitlab/{method}/{owner}/{repo}`, *app.gitlabService).Methods("GET")
 
 	return mux
 }
 
-// Run starts the server
-func (s *Server) Run() {
+// Start starts the application
+func (app *Application) Start() {
 	httpServer := &http.Server{
-		Addr:         ":" + s.config.Port,
-		ReadTimeout:  s.config.ReadTimeout,
-		WriteTimeout: s.config.WriteTimeout,
-		Handler:      s.Handler(),
+		Addr:         fmt.Sprintf(":%d", app.config.Port),
+		ReadTimeout:  app.config.ReadTimeout,
+		WriteTimeout: app.config.WriteTimeout,
+		Handler:      app.handler(),
 	}
 
 	// gracefully shutdowns server
@@ -83,7 +94,7 @@ func (s *Server) Run() {
 		close(idleConnsClosed)
 	}()
 
-	log.Printf("HTTP service listening on port %s...", s.config.Port)
+	log.Printf("HTTP service listening on port %d...", app.config.Port)
 	if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
 		log.Printf("HTTP service ListenAndServe: %v", err)
 	}
@@ -91,12 +102,8 @@ func (s *Server) Run() {
 	<-idleConnsClosed
 }
 
-// NewConfig returns a new set of server configuration
-func NewConfig(port string) *Config {
-	if port == "" {
-		port = DefaultPort
-	}
-
+// newConfig returns a new set of server configuration
+func newConfig(port int) *Config {
 	return &Config{
 		Port:         port,
 		ReadTimeout:  10 * time.Second,
@@ -104,43 +111,32 @@ func NewConfig(port string) *Config {
 	}
 }
 
-// NewServer returns a new server instance
-func NewServer(
-	config *Config,
-	staticService *BadgeService,
-	bitbucketService *GitProviderService,
-	githubService *GitProviderService,
-	gitlabService *GitProviderService,
-) *Server {
-	return &Server{
-		config:           config,
-		staticService:    staticService,
-		bitbucketService: bitbucketService,
-		githubService:    githubService,
-		gitlabService:    gitlabService,
-	}
-}
-
-func main() {
-	port := os.Getenv("PORT")
+// New creates and returns a new instance of Application.
+func New(appInfo Info) (*Application, error) {
 	githubAccessToken := os.Getenv("GITHUB_ACCESS_TOKEN")
 
-	config := NewConfig(port)
+	port, err := strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		port = DefaultPort
+	}
+	config := newConfig(port)
+
 	staticService := NewStaticService()
 	bitbucketService := NewBitbucketService()
 	githubService, err := NewGithubService(githubAccessToken)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	gitlabService := NewGitlabService()
 
-	server := NewServer(
-		config,
-		&staticService,
-		&bitbucketService,
-		&githubService,
-		&gitlabService,
-	)
+	app := &Application{
+		info:             appInfo,
+		config:           config,
+		staticService:    &staticService,
+		bitbucketService: &bitbucketService,
+		githubService:    &githubService,
+		gitlabService:    &gitlabService,
+	}
 
-	server.Run()
+	return app, nil
 }

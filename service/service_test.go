@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"net/http"
@@ -24,15 +24,16 @@ func runHTTPTest(t *testing.T, testCase httpTestCase) {
 	mockStaticService := NewStaticService()
 	mockGitProviderService := NewGitlabService()
 
-	testServer := NewServer(
-		NewConfig(""),
-		&mockStaticService,
-		&mockGitProviderService,
-		&mockGitProviderService,
-		&mockGitProviderService,
-	)
+	testServer := &Application{
+		info:             Info{},
+		config:           &Config{},
+		staticService:    &mockStaticService,
+		bitbucketService: &mockGitProviderService,
+		githubService:    &mockGitProviderService,
+		gitlabService:    &mockGitProviderService,
+	}
 	res := httptest.NewRecorder()
-	testServer.Handler().ServeHTTP(res, req)
+	testServer.handler().ServeHTTP(res, req)
 
 	// Check response header
 	for fieldName, expectedFieldValue := range testCase.expectedHeaders {
