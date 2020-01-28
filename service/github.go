@@ -11,6 +11,7 @@ import (
 	"golang.org/x/oauth2"
 
 	"github.com/tohjustin/badger/pkg/badge"
+	"github.com/tohjustin/badger/service/config"
 )
 
 type githubService struct {
@@ -19,7 +20,8 @@ type githubService struct {
 }
 
 // NewGithubService returns a HTTP handler for the Github badge service
-func NewGithubService(logger *zap.Logger, accessToken string) (GitProviderService, error) {
+func NewGithubService(logger *zap.Logger) (GitProviderService, error) {
+	accessToken := config.GithubAccessToken()
 	if accessToken == "" {
 		return nil, fmt.Errorf("missing GitHub access token")
 	}

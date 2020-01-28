@@ -10,6 +10,7 @@ const (
 	readTimeoutCfg                = "read-timeout"
 	writeTimeoutCfg               = "write-timeout"
 	excludeCacheControlHeadersCfg = "exclude-cache-control-headers"
+	githubAccessTokenCfg          = "github-access-token"
 )
 
 var (
@@ -17,14 +18,19 @@ var (
 	readTimeout                *uint
 	writeTimeout               *uint
 	excludeCacheControlHeaders *bool
+	githubAccessToken          *string
 )
 
 // Flags adds flags related to the application to the given flagset.
 func Flags(flags *flag.FlagSet) {
+	// server configs
 	port = flags.Uint(portCfg, 8080, "Port exposing badget service.")
 	readTimeout = flags.Uint(readTimeoutCfg, 2000, "Maximum duration in milliseconds for reading the entire request, including the body.")
 	writeTimeout = flags.Uint(writeTimeoutCfg, 2000, "Maximum duration in milliseconds before timing out writes of the response.")
 	excludeCacheControlHeaders = flags.Bool(excludeCacheControlHeadersCfg, false, "Flag to exclude HTTP Cache-Control headers from responses.")
+
+	// service configs
+	githubAccessToken = flags.String(githubAccessTokenCfg, "", "GitHub Access Token for GitHub badge service.")
 }
 
 // Port returns the port number the service is listening to
@@ -45,4 +51,9 @@ func WriteTimeout() time.Duration {
 // ExcludeCacheControlHeaders returns whether to include HTTP Cache-Control headers in responses or not
 func ExcludeCacheControlHeaders() bool {
 	return *excludeCacheControlHeaders
+}
+
+// GithubAccessToken returns the GitHub Access Token
+func GithubAccessToken() string {
+	return *githubAccessToken
 }

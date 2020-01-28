@@ -76,7 +76,7 @@ func (app *Application) execute() {
 	// Setup dependencies
 	staticService := NewStaticService(app.logger)
 	bitbucketService := NewBitbucketService(app.logger)
-	githubService, err := NewGithubService(app.logger, os.Getenv("GITHUB_ACCESS_TOKEN"))
+	githubService, err := NewGithubService(app.logger)
 	if err != nil {
 		log.Fatalf("Unable to setup GitHub service: %v", err)
 	}
