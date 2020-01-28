@@ -165,6 +165,7 @@ func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 				zap.String("method", method),
 				zap.String("state", state))
 			badRequest(w)
+			return
 		}
 		value, err = service.getIssueCount(owner, repo, state)
 	case "pull-requests":
@@ -185,6 +186,7 @@ func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 				zap.String("method", method),
 				zap.String("state", state))
 			badRequest(w)
+			return
 		}
 		value, err = service.getPullRequestCount(owner, repo, state)
 	case "stars":
