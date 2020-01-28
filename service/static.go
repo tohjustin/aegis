@@ -30,7 +30,7 @@ func (service *staticService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		Icon:    r.URL.Query().Get("icon"),
 	})
 	if err != nil {
-		service.logger.Error("Unable to generate badge",
+		service.logger.Error("Failed to create badge",
 			zap.String("service", service.name),
 			zap.Error(err))
 		internalServerError(w)

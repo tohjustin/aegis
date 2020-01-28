@@ -79,7 +79,7 @@ func (app *Application) execute() {
 	bitbucketService := NewBitbucketService(app.logger)
 	githubService, err := NewGithubService(app.logger)
 	if err != nil {
-		log.Fatalf("Unable to setup GitHub badge service: %v", err)
+		log.Fatalf("Failed to get GitHub service: %v", err)
 	}
 	gitlabService := NewGitlabService(app.logger)
 	app.staticService = &staticService

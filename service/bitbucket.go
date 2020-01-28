@@ -194,7 +194,7 @@ func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		subject = "stars"
 		value, err = service.getStarCount(owner, repo)
 	default:
-		service.logger.Info("Unsupported method type",
+		service.logger.Info("Unsupported method",
 			zap.String("url", r.URL.RequestURI()),
 			zap.String("service", service.name),
 			zap.String("method", method))
@@ -202,7 +202,7 @@ func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	if err != nil {
-		service.logger.Error("Encountered error while fetching data",
+		service.logger.Error("Failed to fetch data",
 			zap.String("url", r.URL.RequestURI()),
 			zap.String("service", service.name),
 			zap.String("method", method),
@@ -232,7 +232,7 @@ func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		Icon:    r.URL.Query().Get("icon"),
 	})
 	if err != nil {
-		service.logger.Error("Unable to generate badge",
+		service.logger.Error("Failed to create badge",
 			zap.String("url", r.URL.RequestURI()),
 			zap.String("service", service.name),
 			zap.String("method", method),
