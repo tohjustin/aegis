@@ -150,7 +150,6 @@ AUTHORS:
 .PHONY: clean
 clean: ## Cleanup any build binaries or packages
 	@echo "+ $@"
-	find . -name '*-packr.go' -delete
 	rm -f $(NAME)
 	rm -rf $(BUILDDIR)
 
