@@ -7,18 +7,24 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
+
 	"github.com/tohjustin/badger/pkg/badge"
 )
 
-type bitbucketService struct{}
+type bitbucketService struct {
+	logger *zap.Logger
+}
 
 type bitbucketFilteredResponse struct {
 	Size int `json:"size"`
 }
 
 // NewBitbucketService returns a HTTP handler for the Bitbucket badge service
-func NewBitbucketService() GitProviderService {
-	return &bitbucketService{}
+func NewBitbucketService(logger *zap.Logger) GitProviderService {
+	return &bitbucketService{
+		logger: logger,
+	}
 }
 
 func (service *bitbucketService) fetch(url string) (*http.Response, error) {

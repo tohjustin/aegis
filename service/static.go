@@ -3,14 +3,20 @@ package service
 import (
 	"net/http"
 
+	"go.uber.org/zap"
+
 	"github.com/tohjustin/badger/pkg/badge"
 )
 
-type staticService struct{}
+type staticService struct {
+	logger *zap.Logger
+}
 
 // NewStaticService returns a HTTP handler for the static badge service
-func NewStaticService() BadgeService {
-	return &staticService{}
+func NewStaticService(logger *zap.Logger) BadgeService {
+	return &staticService{
+		logger: logger,
+	}
 }
 
 func (service *staticService) ServeHTTP(w http.ResponseWriter, r *http.Request) {

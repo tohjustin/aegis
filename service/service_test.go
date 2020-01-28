@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"go.uber.org/zap"
 )
 
 type httpTestCase struct {
@@ -20,9 +22,10 @@ func runHTTPTest(t *testing.T, testCase httpTestCase) {
 		t.Fatal(err)
 	}
 
-	// TODO: Create proper mock service generators
-	mockStaticService := NewStaticService()
-	mockGitProviderService := NewGitlabService()
+	// TODO: Create proper mock logger & service generators
+	var mockLogger *zap.Logger
+	mockStaticService := NewStaticService(mockLogger)
+	mockGitProviderService := NewGitlabService(mockLogger)
 
 	testServer := &Application{
 		info:             Info{},

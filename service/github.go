@@ -7,16 +7,19 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/shurcooL/githubv4"
-	"github.com/tohjustin/badger/pkg/badge"
+	"go.uber.org/zap"
 	"golang.org/x/oauth2"
+
+	"github.com/tohjustin/badger/pkg/badge"
 )
 
 type githubService struct {
 	client *githubv4.Client
+	logger *zap.Logger
 }
 
 // NewGithubService returns a HTTP handler for the Github badge service
-func NewGithubService(accessToken string) (GitProviderService, error) {
+func NewGithubService(logger *zap.Logger, accessToken string) (GitProviderService, error) {
 	if accessToken == "" {
 		return nil, fmt.Errorf("missing GitHub access token")
 	}
@@ -25,7 +28,10 @@ func NewGithubService(accessToken string) (GitProviderService, error) {
 	tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken})
 	httpClient := oauth2.NewClient(context.Background(), tokenSource)
 
-	return &githubService{client: githubv4.NewClient(httpClient)}, nil
+	return &githubService{
+		client: githubv4.NewClient(httpClient),
+		logger: logger,
+	}, nil
 }
 
 func (service *githubService) getForkCount(owner string, repo string) (int, error) {

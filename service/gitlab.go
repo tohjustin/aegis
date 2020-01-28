@@ -9,10 +9,14 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"go.uber.org/zap"
+
 	"github.com/tohjustin/badger/pkg/badge"
 )
 
-type gitlabService struct{}
+type gitlabService struct {
+	logger *zap.Logger
+}
 
 type gitlabFilteredResponse struct {
 	Size int `json:"size"`
@@ -47,8 +51,10 @@ type gitlabProjectsResponse struct {
 }
 
 // NewGitlabService returns a HTTP handler for the Gitlab badge service
-func NewGitlabService() GitProviderService {
-	return &gitlabService{}
+func NewGitlabService(logger *zap.Logger) GitProviderService {
+	return &gitlabService{
+		logger: logger,
+	}
 }
 
 func (service *gitlabService) fetch(url string) (*http.Response, error) {

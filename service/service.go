@@ -7,10 +7,13 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
+
 	"github.com/tohjustin/badger/service/config"
 )
 
@@ -48,6 +51,7 @@ type Config struct {
 type Application struct {
 	info    Info
 	rootCmd *cobra.Command
+	logger  *zap.Logger
 
 	staticService    *BadgeService
 	bitbucketService *GitProviderService
@@ -55,15 +59,28 @@ type Application struct {
 	gitlabService    *GitProviderService
 }
 
+func (app *Application) init() {
+	logger, err := newLogger()
+	if err != nil {
+		log.Fatalf("Failed to get logger: %v", err)
+	}
+	app.logger = logger
+}
+
 func (app *Application) execute() {
+	app.logger.Info("Starting "+app.info.LongName,
+		zap.String("Version", app.info.Version),
+		zap.String("GitHash", app.info.GitHash),
+		zap.Int("NumCPU", runtime.NumCPU()))
+
 	// Setup dependencies
-	staticService := NewStaticService()
-	bitbucketService := NewBitbucketService()
-	githubService, err := NewGithubService(os.Getenv("GITHUB_ACCESS_TOKEN"))
+	staticService := NewStaticService(app.logger)
+	bitbucketService := NewBitbucketService(app.logger)
+	githubService, err := NewGithubService(app.logger, os.Getenv("GITHUB_ACCESS_TOKEN"))
 	if err != nil {
 		log.Fatalf("Unable to setup GitHub service: %v", err)
 	}
-	gitlabService := NewGitlabService()
+	gitlabService := NewGitlabService(app.logger)
 	app.staticService = &staticService
 	app.bitbucketService = &bitbucketService
 	app.githubService = &githubService
@@ -130,6 +147,7 @@ func New(appInfo Info) (*Application, error) {
 		Short: appInfo.ShortName,
 		Long:  appInfo.LongName,
 		Run: func(cmd *cobra.Command, args []string) {
+			app.init()
 			app.execute()
 		},
 	}
@@ -144,7 +162,13 @@ func New(appInfo Info) (*Application, error) {
 
 	// Setup Flags
 	flagSet := new(flag.FlagSet)
-	config.Flags(flagSet)
+	addFlagsFns := []func(*flag.FlagSet){
+		config.Flags,
+		loggerFlags,
+	}
+	for _, addFlags := range addFlagsFns {
+		addFlags(flagSet)
+	}
 	rootCmd.Flags().AddGoFlagSet(flagSet)
 
 	app.rootCmd = rootCmd
