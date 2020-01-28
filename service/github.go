@@ -15,6 +15,7 @@ import (
 )
 
 type githubService struct {
+	name   string
 	client *githubv4.Client
 	logger *zap.Logger
 }
@@ -31,6 +32,7 @@ func NewGithubService(logger *zap.Logger) (GitProviderService, error) {
 	httpClient := oauth2.NewClient(context.Background(), tokenSource)
 
 	return &githubService{
+		name:   "github",
 		client: githubv4.NewClient(httpClient),
 		logger: logger,
 	}, nil
@@ -150,17 +152,26 @@ func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	case "issues":
 		state := r.URL.Query().Get("state")
 		switch state {
+		case "":
+			subject = "issues"
 		case "open":
 			subject = "open issues"
 		case "closed":
 			subject = "closed issues"
 		default:
-			subject = "issues"
+			service.logger.Info("Unsupported state",
+				zap.String("url", r.URL.RequestURI()),
+				zap.String("service", service.name),
+				zap.String("method", method),
+				zap.String("state", state))
+			badRequest(w)
 		}
 		value, err = service.getIssueCount(owner, repo, state)
 	case "pull-requests":
 		state := r.URL.Query().Get("state")
 		switch state {
+		case "":
+			subject = "PRs"
 		case "open":
 			subject = "open PRs"
 		case "closed":
@@ -168,17 +179,31 @@ func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		case "merged":
 			subject = "merged PRs"
 		default:
-			subject = "PRs"
+			service.logger.Info("Unsupported state",
+				zap.String("url", r.URL.RequestURI()),
+				zap.String("service", service.name),
+				zap.String("method", method),
+				zap.String("state", state))
+			badRequest(w)
 		}
 		value, err = service.getPullRequestCount(owner, repo, state)
 	case "stars":
 		subject = "stars"
 		value, err = service.getStarCount(owner, repo)
 	default:
+		service.logger.Info("Unsupported method type",
+			zap.String("url", r.URL.RequestURI()),
+			zap.String("service", service.name),
+			zap.String("method", method))
 		notFound(w)
 		return
 	}
 	if err != nil {
+		service.logger.Error("Encountered error while fetching data",
+			zap.String("url", r.URL.RequestURI()),
+			zap.String("service", service.name),
+			zap.String("method", method),
+			zap.Error(err))
 		internalServerError(w)
 		return
 	}
@@ -204,7 +229,11 @@ func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		Icon:    r.URL.Query().Get("icon"),
 	})
 	if err != nil {
-		fmt.Println(err)
+		service.logger.Error("Unable to generate badge",
+			zap.String("url", r.URL.RequestURI()),
+			zap.String("service", service.name),
+			zap.String("method", method),
+			zap.Error(err))
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}

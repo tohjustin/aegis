@@ -68,17 +68,18 @@ func (app *Application) init() {
 }
 
 func (app *Application) execute() {
-	app.logger.Info("Starting "+app.info.LongName,
+	app.logger.Info("Starting "+app.info.LongName+"...",
 		zap.String("Version", app.info.Version),
 		zap.String("GitHash", app.info.GitHash),
 		zap.Int("NumCPU", runtime.NumCPU()))
 
 	// Setup dependencies
+	app.logger.Info("Initializing services...")
 	staticService := NewStaticService(app.logger)
 	bitbucketService := NewBitbucketService(app.logger)
 	githubService, err := NewGithubService(app.logger)
 	if err != nil {
-		log.Fatalf("Unable to setup GitHub service: %v", err)
+		log.Fatalf("Unable to setup GitHub badge service: %v", err)
 	}
 	gitlabService := NewGitlabService(app.logger)
 	app.staticService = &staticService
@@ -98,20 +99,22 @@ func (app *Application) execute() {
 	go func() {
 		sigint := make(chan os.Signal, 1)
 		signal.Notify(sigint, os.Interrupt)
-		<-sigint
+		s := <-sigint
+		app.logger.Info("Received signal from OS", zap.String("signal", s.String()))
 
+		app.logger.Info("Starting shutdown...")
 		if err := httpServer.Shutdown(nil); err != nil {
-			log.Printf("Server Shutdown: %v\n", err)
+			app.logger.Error("Encountered error during shutdown", zap.Error(err))
 		}
 
-		log.Printf("Server shutdown successfully...\n")
+		app.logger.Info("Shutdown complete.")
 		close(idleConnsClosed)
 	}()
 
 	// Start HTTP server
-	log.Printf("Server listening on port %d...\n", config.Port())
+	app.logger.Info("HTTP server listening...", zap.Uint("Port", config.Port()))
 	if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
-		log.Printf("Server ListenAndServe: %v\n", err)
+		app.logger.Error("HTTP server encountered an error", zap.Error(err))
 	}
 
 	<-idleConnsClosed

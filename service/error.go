@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/tohjustin/badger/pkg/badge"
@@ -14,7 +13,6 @@ func generateErrorBadge(w http.ResponseWriter, status string) {
 	})
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		fmt.Println(err)
 		return
 	}
 

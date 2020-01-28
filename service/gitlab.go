@@ -3,7 +3,6 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -15,6 +14,7 @@ import (
 )
 
 type gitlabService struct {
+	name   string
 	logger *zap.Logger
 }
 
@@ -53,6 +53,7 @@ type gitlabProjectsResponse struct {
 // NewGitlabService returns a HTTP handler for the Gitlab badge service
 func NewGitlabService(logger *zap.Logger) GitProviderService {
 	return &gitlabService{
+		name:   "gitlab",
 		logger: logger,
 	}
 }
@@ -75,14 +76,12 @@ func (service *gitlabService) getForkCount(owner string, repo string) (int, erro
 	url := fmt.Sprintf("https://gitlab.com/api/v4/projects/%s%%2F%s", owner, repo)
 	resp, err := service.fetch(url)
 	if err != nil {
-		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
 
 	var project gitlabProjectsResponse
 	if err := json.NewDecoder(resp.Body).Decode(&project); err != nil {
-		log.Println(err)
 		return 0, err
 	}
 
@@ -99,7 +98,6 @@ func (service *gitlabService) getIssueCount(owner string, repo string, issueStat
 	}
 	resp, err := service.fetch(url)
 	if err != nil {
-		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
@@ -107,7 +105,6 @@ func (service *gitlabService) getIssueCount(owner string, repo string, issueStat
 	xTotal := resp.Header.Get("X-Total")
 	issueCount, err := strconv.Atoi(xTotal)
 	if err != nil {
-		log.Println(err)
 		return 0, err
 	}
 
@@ -128,7 +125,6 @@ func (service *gitlabService) getPullRequestCount(owner string, repo string, pul
 	}
 	resp, err := service.fetch(url)
 	if err != nil {
-		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
@@ -136,7 +132,6 @@ func (service *gitlabService) getPullRequestCount(owner string, repo string, pul
 	xTotal := resp.Header.Get("X-Total")
 	issueCount, err := strconv.Atoi(xTotal)
 	if err != nil {
-		log.Println(err)
 		return 0, err
 	}
 
@@ -147,14 +142,12 @@ func (service *gitlabService) getStarCount(owner string, repo string) (int, erro
 	url := fmt.Sprintf("https://gitlab.com/api/v4/projects/%s%%2F%s", owner, repo)
 	resp, err := service.fetch(url)
 	if err != nil {
-		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
 
 	var project gitlabProjectsResponse
 	if err := json.NewDecoder(resp.Body).Decode(&project); err != nil {
-		log.Println(err)
 		return 0, err
 	}
 
@@ -185,6 +178,11 @@ func (service *gitlabService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		case "closed":
 			subject = "closed issues"
 		default:
+			service.logger.Info("Unsupported state",
+				zap.String("url", r.URL.RequestURI()),
+				zap.String("service", service.name),
+				zap.String("method", method),
+				zap.String("state", state))
 			badRequest(w)
 			return
 		}
@@ -203,6 +201,11 @@ func (service *gitlabService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		case "merged":
 			subject = "merged MRs"
 		default:
+			service.logger.Info("Unsupported state",
+				zap.String("url", r.URL.RequestURI()),
+				zap.String("service", service.name),
+				zap.String("method", method),
+				zap.String("state", state))
 			badRequest(w)
 			return
 		}
@@ -211,10 +214,19 @@ func (service *gitlabService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		subject = "stars"
 		value, err = service.getStarCount(owner, repo)
 	default:
+		service.logger.Info("Unsupported method type",
+			zap.String("url", r.URL.RequestURI()),
+			zap.String("service", service.name),
+			zap.String("method", method))
 		notFound(w)
 		return
 	}
 	if err != nil {
+		service.logger.Error("Encountered error while fetching data",
+			zap.String("url", r.URL.RequestURI()),
+			zap.String("service", service.name),
+			zap.String("method", method),
+			zap.Error(err))
 		internalServerError(w)
 		return
 	}
@@ -240,7 +252,10 @@ func (service *gitlabService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		Icon:    r.URL.Query().Get("icon"),
 	})
 	if err != nil {
-		fmt.Println(err)
+		service.logger.Error("Unable to generate badge",
+			zap.String("url", r.URL.RequestURI()),
+			zap.String("service", service.name),
+			zap.Error(err))
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}

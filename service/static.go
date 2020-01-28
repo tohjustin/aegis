@@ -9,12 +9,14 @@ import (
 )
 
 type staticService struct {
+	name   string
 	logger *zap.Logger
 }
 
 // NewStaticService returns a HTTP handler for the static badge service
 func NewStaticService(logger *zap.Logger) BadgeService {
 	return &staticService{
+		name:   "static",
 		logger: logger,
 	}
 }
@@ -28,6 +30,9 @@ func (service *staticService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		Icon:    r.URL.Query().Get("icon"),
 	})
 	if err != nil {
+		service.logger.Error("Unable to generate badge",
+			zap.String("service", service.name),
+			zap.Error(err))
 		internalServerError(w)
 		return
 	}

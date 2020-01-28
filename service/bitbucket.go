@@ -3,7 +3,6 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -13,6 +12,7 @@ import (
 )
 
 type bitbucketService struct {
+	name   string
 	logger *zap.Logger
 }
 
@@ -23,6 +23,7 @@ type bitbucketFilteredResponse struct {
 // NewBitbucketService returns a HTTP handler for the Bitbucket badge service
 func NewBitbucketService(logger *zap.Logger) GitProviderService {
 	return &bitbucketService{
+		name:   "bitbucket",
 		logger: logger,
 	}
 }
@@ -45,14 +46,12 @@ func (service *bitbucketService) getForkCount(owner string, repo string) (int, e
 	url := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%s/%s/forks?&fields=size", owner, repo)
 	resp, err := service.fetch(url)
 	if err != nil {
-		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
 
 	var forks bitbucketFilteredResponse
 	if err := json.NewDecoder(resp.Body).Decode(&forks); err != nil {
-		log.Println(err)
 		return -1, err
 	}
 
@@ -81,14 +80,12 @@ func (service *bitbucketService) getIssueCount(owner string, repo string, issueS
 	}
 	resp, err := service.fetch(url)
 	if err != nil {
-		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
 
 	var issues bitbucketFilteredResponse
 	if err := json.NewDecoder(resp.Body).Decode(&issues); err != nil {
-		log.Println(err)
 		return 0, err
 	}
 
@@ -109,14 +106,12 @@ func (service *bitbucketService) getPullRequestCount(owner string, repo string, 
 	}
 	resp, err := service.fetch(url)
 	if err != nil {
-		log.Fatal("Fetch: ", err)
 		return 0, err
 	}
 	defer resp.Body.Close()
 
 	var pullRequests bitbucketFilteredResponse
 	if err := json.NewDecoder(resp.Body).Decode(&pullRequests); err != nil {
-		log.Println(err)
 		return 0, err
 	}
 
@@ -163,6 +158,11 @@ func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		case "closed":
 			subject = "closed issues"
 		default:
+			service.logger.Info("Unsupported state",
+				zap.String("url", r.URL.RequestURI()),
+				zap.String("service", service.name),
+				zap.String("method", method),
+				zap.String("state", state))
 			badRequest(w)
 			return
 		}
@@ -181,6 +181,11 @@ func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		case "declined":
 			subject = "declined PRs"
 		default:
+			service.logger.Info("Unsupported state",
+				zap.String("url", r.URL.RequestURI()),
+				zap.String("service", service.name),
+				zap.String("method", method),
+				zap.String("state", state))
 			badRequest(w)
 			return
 		}
@@ -189,10 +194,19 @@ func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		subject = "stars"
 		value, err = service.getStarCount(owner, repo)
 	default:
+		service.logger.Info("Unsupported method type",
+			zap.String("url", r.URL.RequestURI()),
+			zap.String("service", service.name),
+			zap.String("method", method))
 		notFound(w)
 		return
 	}
 	if err != nil {
+		service.logger.Error("Encountered error while fetching data",
+			zap.String("url", r.URL.RequestURI()),
+			zap.String("service", service.name),
+			zap.String("method", method),
+			zap.Error(err))
 		internalServerError(w)
 		return
 	}
@@ -218,7 +232,11 @@ func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		Icon:    r.URL.Query().Get("icon"),
 	})
 	if err != nil {
-		fmt.Println(err)
+		service.logger.Error("Unable to generate badge",
+			zap.String("url", r.URL.RequestURI()),
+			zap.String("service", service.name),
+			zap.String("method", method),
+			zap.Error(err))
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
