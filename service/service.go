@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
@@ -38,13 +37,6 @@ type Info struct {
 	LongName       string
 	Version        string
 	GitHash        string
-}
-
-// Config represents a server's configuration
-type Config struct {
-	Port         int
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
 }
 
 // Application represents a badge generation application
