@@ -42,8 +42,9 @@ type Info struct {
 // Application represents a badge generation application
 type Application struct {
 	info    Info
-	rootCmd *cobra.Command
+	config  *config.Config
 	logger  *zap.Logger
+	rootCmd *cobra.Command
 
 	staticService    *BadgeService
 	bitbucketService *GitProviderService
@@ -57,6 +58,12 @@ func (app *Application) init() {
 		log.Fatalf("Failed to get logger: %v", err)
 	}
 	app.logger = logger
+
+	config, err := config.New()
+	if err != nil {
+		log.Fatalf("Failed to get config: %v", err)
+	}
+	app.config = config
 }
 
 func (app *Application) execute() {
@@ -67,22 +74,31 @@ func (app *Application) execute() {
 
 	// Setup dependencies
 	app.logger.Info("Initializing services...")
-	staticService := NewStaticService(app.logger)
-	bitbucketService := NewBitbucketService(app.logger)
-	githubService, err := NewGithubService(app.logger)
+	staticService, err := NewStaticService(app.config, app.logger)
+	if err != nil {
+		log.Fatalf("Failed to get static service: %v", err)
+	}
+	bitbucketService, err := NewBitbucketService(app.config, app.logger)
+	if err != nil {
+		log.Fatalf("Failed to get Bitbucket service: %v", err)
+	}
+	githubService, err := NewGithubService(app.config, app.logger)
 	if err != nil {
 		log.Fatalf("Failed to get GitHub service: %v", err)
 	}
-	gitlabService := NewGitlabService(app.logger)
+	gitlabService, err := NewGitlabService(app.config, app.logger)
+	if err != nil {
+		log.Fatalf("Failed to get GitLab service: %v", err)
+	}
 	app.staticService = &staticService
 	app.bitbucketService = &bitbucketService
 	app.githubService = &githubService
 	app.gitlabService = &gitlabService
 
 	httpServer := &http.Server{
-		Addr:         fmt.Sprintf(":%d", config.Port()),
-		ReadTimeout:  config.ReadTimeout(),
-		WriteTimeout: config.WriteTimeout(),
+		Addr:         fmt.Sprintf(":%d", app.config.Port),
+		ReadTimeout:  app.config.ReadTimeout,
+		WriteTimeout: app.config.WriteTimeout,
 		Handler:      app.handler(),
 	}
 
@@ -104,7 +120,7 @@ func (app *Application) execute() {
 	}()
 
 	// Start HTTP server
-	app.logger.Info("HTTP server listening...", zap.Uint("Port", config.Port()))
+	app.logger.Info("HTTP server listening...", zap.Uint("Port", app.config.Port))
 	if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
 		app.logger.Error("HTTP server encountered an error", zap.Error(err))
 	}

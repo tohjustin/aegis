@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/tohjustin/badger/service/config"
 	"go.uber.org/zap"
 )
 
@@ -22,10 +23,17 @@ func runHTTPTest(t *testing.T, testCase httpTestCase) {
 		t.Fatal(err)
 	}
 
-	// TODO: Create proper mock logger & service generators
-	var mockLogger *zap.Logger
-	mockStaticService := NewStaticService(mockLogger)
-	mockGitProviderService := NewGitlabService(mockLogger)
+	// TODO: Create proper mock dependencies & service generators
+	mockLogger := &zap.Logger{}
+	mockConfig := &config.Config{}
+	mockStaticService, err := NewStaticService(mockConfig, mockLogger)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	mockGitProviderService, err := NewGitlabService(mockConfig, mockLogger)
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
 
 	testServer := &Application{
 		info:             Info{},

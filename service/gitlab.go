@@ -11,10 +11,12 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/tohjustin/badger/pkg/badge"
+	"github.com/tohjustin/badger/service/config"
 )
 
 type gitlabService struct {
 	name   string
+	config *config.Config
 	logger *zap.Logger
 }
 
@@ -51,11 +53,19 @@ type gitlabProjectsResponse struct {
 }
 
 // NewGitlabService returns a HTTP handler for the Gitlab badge service
-func NewGitlabService(logger *zap.Logger) GitProviderService {
+func NewGitlabService(configuration *config.Config, logger *zap.Logger) (GitProviderService, error) {
+	if configuration == nil {
+		return nil, fmt.Errorf("missing config dependency")
+	}
+	if logger == nil {
+		return nil, fmt.Errorf("missing logger dependency")
+	}
+
 	return &gitlabService{
 		name:   "gitlab",
+		config: configuration,
 		logger: logger,
-	}
+	}, nil
 }
 
 func (service *gitlabService) fetch(url string) (*http.Response, error) {

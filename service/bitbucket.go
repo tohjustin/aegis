@@ -9,10 +9,12 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/tohjustin/badger/pkg/badge"
+	"github.com/tohjustin/badger/service/config"
 )
 
 type bitbucketService struct {
 	name   string
+	config *config.Config
 	logger *zap.Logger
 }
 
@@ -21,11 +23,20 @@ type bitbucketFilteredResponse struct {
 }
 
 // NewBitbucketService returns a HTTP handler for the Bitbucket badge service
-func NewBitbucketService(logger *zap.Logger) GitProviderService {
+func NewBitbucketService(configuration *config.Config,
+	logger *zap.Logger) (GitProviderService, error) {
+	if configuration == nil {
+		return nil, fmt.Errorf("missing config dependency")
+	}
+	if logger == nil {
+		return nil, fmt.Errorf("missing logger dependency")
+	}
+
 	return &bitbucketService{
 		name:   "bitbucket",
+		config: configuration,
 		logger: logger,
-	}
+	}, nil
 }
 
 func (service *bitbucketService) fetch(url string) (*http.Response, error) {

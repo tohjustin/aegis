@@ -17,12 +17,21 @@ import (
 type githubService struct {
 	name   string
 	client *githubv4.Client
+	config *config.Config
 	logger *zap.Logger
 }
 
 // NewGithubService returns a HTTP handler for the Github badge service
-func NewGithubService(logger *zap.Logger) (GitProviderService, error) {
-	accessToken := config.GithubAccessToken()
+func NewGithubService(configuration *config.Config,
+	logger *zap.Logger) (GitProviderService, error) {
+	if configuration == nil {
+		return nil, fmt.Errorf("missing config dependency")
+	}
+	if logger == nil {
+		return nil, fmt.Errorf("missing logger dependency")
+	}
+
+	accessToken := configuration.GithubAccessToken
 	if accessToken == "" {
 		return nil, fmt.Errorf("missing GitHub access token")
 	}
@@ -34,6 +43,7 @@ func NewGithubService(logger *zap.Logger) (GitProviderService, error) {
 	return &githubService{
 		name:   "github",
 		client: githubv4.NewClient(httpClient),
+		config: configuration,
 		logger: logger,
 	}, nil
 }

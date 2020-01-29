@@ -1,24 +1,36 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
 
 	"go.uber.org/zap"
 
 	"github.com/tohjustin/badger/pkg/badge"
+	"github.com/tohjustin/badger/service/config"
 )
 
 type staticService struct {
 	name   string
+	config *config.Config
 	logger *zap.Logger
 }
 
 // NewStaticService returns a HTTP handler for the static badge service
-func NewStaticService(logger *zap.Logger) BadgeService {
+func NewStaticService(configuration *config.Config,
+	logger *zap.Logger) (BadgeService, error) {
+	if configuration == nil {
+		return nil, fmt.Errorf("missing config dependency")
+	}
+	if logger == nil {
+		return nil, fmt.Errorf("missing logger dependency")
+	}
+
 	return &staticService{
 		name:   "static",
+		config: configuration,
 		logger: logger,
-	}
+	}, nil
 }
 
 func (service *staticService) ServeHTTP(w http.ResponseWriter, r *http.Request) {

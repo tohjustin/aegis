@@ -2,6 +2,7 @@ package config
 
 import (
 	"flag"
+	"fmt"
 	"time"
 )
 
@@ -21,6 +22,15 @@ var (
 	githubAccessToken          *string
 )
 
+// Config contains all application configuration
+type Config struct {
+	Port                       uint
+	ReadTimeout                time.Duration
+	WriteTimeout               time.Duration
+	ExcludeCacheControlHeaders bool
+	GithubAccessToken          string
+}
+
 // Flags adds flags related to the application to the given flagset.
 func Flags(flags *flag.FlagSet) {
 	// server configs
@@ -33,27 +43,18 @@ func Flags(flags *flag.FlagSet) {
 	githubAccessToken = flags.String(githubAccessTokenCfg, "", "GitHub Access Token for GitHub badge service.")
 }
 
-// Port returns the port number the service is listening to
-func Port() uint {
-	return *port
-}
+// New returns an instance of all application configuration
+func New() (*Config, error) {
+	if port == nil || readTimeout == nil || writeTimeout == nil ||
+		excludeCacheControlHeaders == nil || githubAccessToken == nil {
+		return nil, fmt.Errorf("configuration flags are not set")
+	}
 
-// ReadTimeout returns the service maximum duration for reading the entire request, including the body
-func ReadTimeout() time.Duration {
-	return time.Duration(*readTimeout) * time.Millisecond
-}
-
-// WriteTimeout returns the service maximum duration before timing out writes of the response
-func WriteTimeout() time.Duration {
-	return time.Duration(*writeTimeout) * time.Millisecond
-}
-
-// ExcludeCacheControlHeaders returns whether to include HTTP Cache-Control headers in responses or not
-func ExcludeCacheControlHeaders() bool {
-	return *excludeCacheControlHeaders
-}
-
-// GithubAccessToken returns the GitHub Access Token
-func GithubAccessToken() string {
-	return *githubAccessToken
+	return &Config{
+		Port:                       *port,
+		ReadTimeout:                time.Duration(*readTimeout) * time.Millisecond,
+		WriteTimeout:               time.Duration(*writeTimeout) * time.Millisecond,
+		ExcludeCacheControlHeaders: *excludeCacheControlHeaders,
+		GithubAccessToken:          *githubAccessToken,
+	}, nil
 }
