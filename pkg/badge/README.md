@@ -9,7 +9,7 @@ Sample program:
 ```go
 package main
 
-import "github.com/tohjustin/badger/pkg/badge"
+import "github.com/tohjustin/aegis/pkg/badge"
 
 func main() {
   generatedBadge, _ := badge.Create(&badge.Params{

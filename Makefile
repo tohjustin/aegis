@@ -4,7 +4,7 @@
 PREFIX?=$(shell pwd)
 
 # Setup name variables for the package/tool
-NAME := badger
+NAME := aegis
 PKG := github.com/tohjustin/$(NAME)
 
 # Set any default go build tags

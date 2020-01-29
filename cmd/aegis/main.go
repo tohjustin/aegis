@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/tohjustin/badger/internal/version"
-	"github.com/tohjustin/badger/service"
+	"github.com/tohjustin/aegis/internal/version"
+	"github.com/tohjustin/aegis/service"
 )
 
 func main() {
@@ -15,8 +15,9 @@ func main() {
 	}
 
 	info := service.Info{
-		ExecutableName: "badger",
-		LongName:       "Badger badge generation service",
+		ExecutableName: "aegis",
+		ShortName:      "Aegis",
+		LongName:       "Aegis badge generation service",
 		Version:        version.Version,
 		GitHash:        version.GitHash,
 	}

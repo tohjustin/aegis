@@ -6,8 +6,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/tohjustin/badger/pkg/badge"
-	"github.com/tohjustin/badger/service/config"
+	"github.com/tohjustin/aegis/pkg/badge"
+	"github.com/tohjustin/aegis/service/config"
 )
 
 type staticService struct {

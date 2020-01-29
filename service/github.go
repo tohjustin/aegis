@@ -10,8 +10,8 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 
-	"github.com/tohjustin/badger/pkg/badge"
-	"github.com/tohjustin/badger/service/config"
+	"github.com/tohjustin/aegis/pkg/badge"
+	"github.com/tohjustin/aegis/service/config"
 )
 
 type githubService struct {

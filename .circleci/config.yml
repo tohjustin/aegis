@@ -1,7 +1,7 @@
 version: 2.1
 jobs:
   build:
-    working_directory: ~/go/src/github.com/tohjustin/badger
+    working_directory: ~/go/src/github.com/tohjustin/aegis
     docker:
       - image: circleci/golang:1.13.7
     steps:

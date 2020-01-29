@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/tohjustin/badger/service/config"
+	"github.com/tohjustin/aegis/service/config"
 	"go.uber.org/zap"
 )
 

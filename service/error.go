@@ -3,14 +3,14 @@ package service
 import (
 	"net/http"
 
-	"github.com/tohjustin/badger/pkg/badge"
-	"github.com/tohjustin/badger/service/config"
+	"github.com/tohjustin/aegis/pkg/badge"
+	"github.com/tohjustin/aegis/service/config"
 )
 
 func generateErrorBadge(w http.ResponseWriter,
 	configuration *config.Config, status string) error {
 	generatedBadge, err := badge.Create(&badge.Params{
-		Subject: "badger",
+		Subject: "aegis",
 		Status:  status,
 	})
 	if err != nil {

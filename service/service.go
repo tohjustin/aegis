@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 
-	"github.com/tohjustin/badger/service/config"
+	"github.com/tohjustin/aegis/service/config"
 )
 
 // BadgeService represents a badge service
@@ -154,9 +154,8 @@ func New(appInfo Info) (*Application, error) {
 
 	// Setup commands
 	rootCmd := &cobra.Command{
-		Use:   appInfo.ExecutableName,
-		Short: appInfo.ShortName,
-		Long:  appInfo.LongName,
+		Use:  appInfo.ExecutableName,
+		Long: appInfo.LongName,
 		Run: func(cmd *cobra.Command, args []string) {
 			app.init()
 			app.execute()
@@ -166,7 +165,7 @@ func New(appInfo Info) (*Application, error) {
 		Use:  "version",
 		Long: "Print the version number",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("Badger v%s (%s)\n", appInfo.Version, appInfo.GitHash)
+			fmt.Printf("%s v%s (%s)\n", appInfo.ShortName, appInfo.Version, appInfo.GitHash)
 		},
 	}
 	rootCmd.AddCommand(versionCmd)

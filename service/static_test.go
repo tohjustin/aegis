@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/tohjustin/badger/pkg/badge"
+	"github.com/tohjustin/aegis/pkg/badge"
 )
 
 func createBadge(params *badge.Params) string {

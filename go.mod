@@ -1,4 +1,4 @@
-module github.com/tohjustin/badger
+module github.com/tohjustin/aegis
 
 go 1.13
 
