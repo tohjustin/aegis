@@ -31,3 +31,7 @@ coverage.html
 # Miscellaneous files
 *.sw[op]
 *.DS_Store
+
+# Deployment (GAE)
+.gcloudignore
+app.yaml
