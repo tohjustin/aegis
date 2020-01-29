@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/go/src/github.com/tohjustin/badger
     docker:
-      - image: circleci/golang:1.13.6
+      - image: circleci/golang:1.13.7
     steps:
       - checkout
       - restore_cache:
