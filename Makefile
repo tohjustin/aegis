@@ -47,6 +47,7 @@ $(NAME): $(wildcard *.go) $(wildcard */*.go) VERSION.txt
 .PHONY: static
 static: generate ## Builds a static executable
 	@echo "+ $@"
+	$(GO) mod tidy
 	CGO_ENABLED=0 $(GO) build \
 		-tags "$(BUILDTAGS) static_build" \
 		${GO_LDFLAGS_STATIC} -o $(NAME) ./cmd/${NAME}

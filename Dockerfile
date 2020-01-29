@@ -1,12 +1,22 @@
-FROM golang:1.10-alpine AS build
+# build stage
+FROM golang:1.13.7-alpine AS builder
 
-# Using the following WORKDIR in order to allow the packages in `/vendor` &
-# `/pkg` to be located correctly during the build phase
-WORKDIR /go/src/github.com/tohjustin/aegis
+ENV GO111MODULE=on
+
+WORKDIR /app
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+
 COPY . .
-RUN CGO_ENABLED=0 go build -ldflags "-s -w" -o main
+RUN apk update && \
+    apk upgrade && \
+    apk add --no-cache git && \
+    apk add --no-cache make
+RUN make build
 
+# final stage
 FROM scratch
+COPY --from=builder /app/aegis .
 EXPOSE 8080
-COPY --from=build /go/src/github.com/tohjustin/aegis/main /aegis-microservice
-CMD ["./aegis-microservice"]
+CMD ["sh", "-c", "./aegis --github-access-token ${GITHUB_ACCESS_TOKEN}"]
