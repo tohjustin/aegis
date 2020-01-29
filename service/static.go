@@ -45,12 +45,20 @@ func (service *staticService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		service.logger.Error("Failed to create badge",
 			zap.String("service", service.name),
 			zap.Error(err))
-		internalServerError(w)
+		if err := internalServerError(w, service.config); err != nil {
+			service.logger.Error("Failed to create error badge",
+				zap.String("url", r.URL.RequestURI()),
+				zap.String("service", service.name),
+				zap.Error(err))
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
 		return
 	}
 
-	// cache response in browser for 1 day (86400), CDN for 1 year (31536000)
-	w.Header().Set("Cache-Control", "public, immutable, max-age=86400, s-maxage=31536000")
+	if !service.config.ExcludeCacheControlHeaders {
+		// cache response in browser for 1 day (86400), CDN for 1 year (31536000)
+		w.Header().Set("Cache-Control", "public, immutable, max-age=86400, s-maxage=31536000")
+	}
 	w.Header().Set("Content-Type", "image/svg+xml;utf-8")
 	w.Write([]byte(generatedBadge))
 }

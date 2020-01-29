@@ -174,7 +174,13 @@ func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 				zap.String("service", service.name),
 				zap.String("method", method),
 				zap.String("state", state))
-			badRequest(w)
+			if err := badRequest(w, service.config); err != nil {
+				service.logger.Error("Failed to create error badge",
+					zap.String("url", r.URL.RequestURI()),
+					zap.String("service", service.name),
+					zap.String("method", method),
+					zap.Error(err))
+			}
 			return
 		}
 		value, err = service.getIssueCount(owner, repo, state)
@@ -195,7 +201,13 @@ func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 				zap.String("service", service.name),
 				zap.String("method", method),
 				zap.String("state", state))
-			badRequest(w)
+			if err := badRequest(w, service.config); err != nil {
+				service.logger.Error("Failed to create error badge",
+					zap.String("url", r.URL.RequestURI()),
+					zap.String("service", service.name),
+					zap.String("method", method),
+					zap.Error(err))
+			}
 			return
 		}
 		value, err = service.getPullRequestCount(owner, repo, state)
@@ -207,7 +219,13 @@ func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 			zap.String("url", r.URL.RequestURI()),
 			zap.String("service", service.name),
 			zap.String("method", method))
-		notFound(w)
+		if err := notFound(w, service.config); err != nil {
+			service.logger.Error("Failed to create error badge",
+				zap.String("url", r.URL.RequestURI()),
+				zap.String("service", service.name),
+				zap.String("method", method),
+				zap.Error(err))
+		}
 		return
 	}
 	if err != nil {
@@ -216,7 +234,14 @@ func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 			zap.String("service", service.name),
 			zap.String("method", method),
 			zap.Error(err))
-		internalServerError(w)
+		if err := internalServerError(w, service.config); err != nil {
+			service.logger.Error("Failed to create error badge",
+				zap.String("url", r.URL.RequestURI()),
+				zap.String("service", service.name),
+				zap.String("method", method),
+				zap.Error(err))
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
 		return
 	}
 	status = formatIntegerWithMetricPrefix(value)
@@ -250,8 +275,10 @@ func (service *githubService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// cache response in browser for 1 hour (3600), CDN for 1 hour (3600)
-	w.Header().Set("Cache-Control", "public, max-age=3600, s-maxage=3600")
+	if !service.config.ExcludeCacheControlHeaders {
+		// cache response in browser for 1 hour (3600), CDN for 1 hour (3600)
+		w.Header().Set("Cache-Control", "public, max-age=3600, s-maxage=3600")
+	}
 	w.Header().Set("Content-Type", "image/svg+xml;utf-8")
 	w.Write([]byte(generatedBadge))
 }
