@@ -25,7 +25,7 @@ const (
 
 const (
 	// DefaultColor represents the default color
-	DefaultColor string = "#1bacbf"
+	DefaultColor string = "#f7b137"
 	// DefaultStyle represents the default style
 	DefaultStyle Style = ClassicStyle
 )
