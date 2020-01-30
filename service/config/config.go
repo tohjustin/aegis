@@ -3,6 +3,7 @@ package config
 import (
 	"flag"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -40,7 +41,7 @@ func Flags(flags *flag.FlagSet) {
 	excludeCacheControlHeaders = flags.Bool(excludeCacheControlHeadersCfg, false, "Flag to exclude HTTP Cache-Control headers from responses.")
 
 	// service configs
-	githubAccessToken = flags.String(githubAccessTokenCfg, "", "GitHub Access Token for GitHub badge service.")
+	githubAccessToken = flags.String(githubAccessTokenCfg, os.Getenv("GITHUB_ACCESS_TOKEN"), "GitHub Access Token for GitHub badge service.")
 }
 
 // New returns an instance of all application configuration
