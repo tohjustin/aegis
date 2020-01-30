@@ -23,7 +23,7 @@ func TestStaticBadgeService(t *testing.T) {
 		requestMethod: "GET",
 		requestPath:   "/static?subject=testSubject&status=testStatus&color=ff0000",
 		expectedHeaders: map[string]string{
-			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
+			"Cache-Control": "public, max-age=3600, s-maxage=3600",
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
@@ -42,7 +42,7 @@ func TestStaticBadgeServiceWithCSSColorName(t *testing.T) {
 		requestMethod: "GET",
 		requestPath:   "/static?subject=testSubject&status=testStatus&color=red",
 		expectedHeaders: map[string]string{
-			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
+			"Cache-Control": "public, max-age=3600, s-maxage=3600",
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
@@ -61,7 +61,7 @@ func TestStaticBadgeServiceWithNoColor(t *testing.T) {
 		requestMethod: "GET",
 		requestPath:   "/static?subject=testSubject&status=testStatus",
 		expectedHeaders: map[string]string{
-			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
+			"Cache-Control": "public, max-age=3600, s-maxage=3600",
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
@@ -80,7 +80,7 @@ func TestStaticBadgeServiceWithBadColor(t *testing.T) {
 		requestMethod: "GET",
 		requestPath:   "/static?subject=testSubject&status=testStatus&color=badColor",
 		expectedHeaders: map[string]string{
-			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
+			"Cache-Control": "public, max-age=3600, s-maxage=3600",
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
@@ -99,7 +99,7 @@ func TestStaticBadgeServiceWithIconQuery(t *testing.T) {
 		requestMethod: "GET",
 		requestPath:   "/static?subject=testSubject&status=testStatus&icon=brands/docker",
 		expectedHeaders: map[string]string{
-			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
+			"Cache-Control": "public, max-age=3600, s-maxage=3600",
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
@@ -118,7 +118,7 @@ func TestStaticBadgeServiceWithBadIconQuery(t *testing.T) {
 		requestMethod: "GET",
 		requestPath:   "/static?subject=testSubject&status=testStatus&icon=badIcon",
 		expectedHeaders: map[string]string{
-			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
+			"Cache-Control": "public, max-age=3600, s-maxage=3600",
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
@@ -136,7 +136,7 @@ func TestStaticBadgeServiceWithStyleQuery(t *testing.T) {
 		requestMethod: "GET",
 		requestPath:   "/static?subject=testSubject&status=testStatus&style=semaphoreci",
 		expectedHeaders: map[string]string{
-			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
+			"Cache-Control": "public, max-age=3600, s-maxage=3600",
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,
@@ -155,7 +155,7 @@ func TestStaticBadgeServiceWithBadStyleQuery(t *testing.T) {
 		requestMethod: "GET",
 		requestPath:   "/static?subject=testSubject&status=testStatus&style=badStyle",
 		expectedHeaders: map[string]string{
-			"Cache-Control": "public, immutable, max-age=86400, s-maxage=31536000",
+			"Cache-Control": "public, max-age=3600, s-maxage=3600",
 			"Content-Type":  "image/svg+xml;utf-8",
 		},
 		expectedStatus: 200,

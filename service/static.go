@@ -56,8 +56,8 @@ func (service *staticService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if !service.config.ExcludeCacheControlHeaders {
-		// cache response in browser for 1 day (86400), CDN for 1 year (31536000)
-		w.Header().Set("Cache-Control", "public, immutable, max-age=86400, s-maxage=31536000")
+		// cache response in browser for 1 hour (3600), CDN for 1 hour (3600)
+		w.Header().Set("Cache-Control", "public, max-age=3600, s-maxage=3600")
 	}
 	w.Header().Set("Content-Type", "image/svg+xml;utf-8")
 	w.Write([]byte(generatedBadge))
