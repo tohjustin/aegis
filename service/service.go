@@ -137,6 +137,10 @@ func (app *Application) handler() http.Handler {
 	mux.Handle(`/bitbucket/{method}/{owner}/{repo}`, *app.bitbucketService).Methods("GET")
 	mux.Handle(`/github/{method}/{owner}/{repo}`, *app.githubService).Methods("GET")
 	mux.Handle(`/gitlab/{method}/{owner}/{repo}`, *app.gitlabService).Methods("GET")
+	// return service-not-found badge for all unmatched routes
+	mux.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		serviceNotFound(w, app.config)
+	}).Methods("GET")
 
 	return mux
 }

@@ -43,3 +43,9 @@ func notFound(w http.ResponseWriter,
 	configuration *config.Config) error {
 	return generateErrorBadge(w, configuration, "not found")
 }
+
+// serviceNotFound handles HTTP requests for services that don't exist
+func serviceNotFound(w http.ResponseWriter,
+	configuration *config.Config) error {
+	return generateErrorBadge(w, configuration, "service not found")
+}
