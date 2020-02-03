@@ -29,17 +29,17 @@ func generateErrorBadge(w http.ResponseWriter,
 // badRequest handles HTTP requests that are malformed
 func badRequest(w http.ResponseWriter,
 	configuration *config.Config) error {
-	return generateErrorBadge(w, configuration, "400 Bad Request")
+	return generateErrorBadge(w, configuration, "bad request")
 }
 
 // internalServerError handles HTTP requests that results in internal server error
 func internalServerError(w http.ResponseWriter,
 	configuration *config.Config) error {
-	return generateErrorBadge(w, configuration, "500 Internal Server Error")
+	return generateErrorBadge(w, configuration, "internal server error")
 }
 
-// notFound handles HTTP requests for services or methods that don't exist
+// notFound handles HTTP requests for methods that don't exist
 func notFound(w http.ResponseWriter,
 	configuration *config.Config) error {
-	return generateErrorBadge(w, configuration, "404 Not Found")
+	return generateErrorBadge(w, configuration, "not found")
 }
