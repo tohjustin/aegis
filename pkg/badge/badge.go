@@ -1,6 +1,8 @@
 // Package badge provides functions for generating SVG badges.
 package badge
 
+//go:generate go get github.com/golang/freetype/truetype
+//go:generate go get golang.org/x/image/math/fixed
 //go:generate go run gen.go
 
 import (
