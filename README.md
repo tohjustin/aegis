@@ -8,7 +8,6 @@
 <!-- [![CodeCov](https://codecov.io/gh/tohjustin/aegis/branch/master/graph/badge.svg?token=HRJhI2JVS0)](https://codecov.io/gh/tohjustin/aegis) -->
 <!-- [![GoDoc](https://godoc.org/github.com/tohjustin/aegis/pkg/badge?status.svg)](http://godoc.org/github.com/tohjustin/aegis/pkg/badge/) -->
 [![CircleCI](https://circleci.com/gh/tohjustin/aegis/tree/master.svg?style=shield&circle-token=fbdca44ece1ce1c6e2a907a530476138578946a2)](https://circleci.com/gh/tohjustin/aegis/tree/master)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftohjustin%2Faegis.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftohjustin%2Faegis?ref=badge_shield)
 [![Font Awesome](https://aegisbadges.appspot.com/static?icon=brands/font-awesome&subject=Font%20Awesome&status=v5.12.0&color=318FE0)](https://fontawesome.com/)
 [![Release](https://aegisbadges.appspot.com/static?subject=release&status=v1.0.0)](https://github.com/tohjustin/aegis/releases)
 [![License](https://aegisbadges.appspot.com/static?subject=license&status=MIT)](https://opensource.org/licenses/MIT)
@@ -106,3 +105,5 @@ To run the Aegis server locally, make sure to run `make all` or `make build` to 
 ## License
 
 Aegis is [MIT licensed](./LICENSE).
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftohjustin%2Faegis.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftohjustin%2Faegis?ref=badge_large)
