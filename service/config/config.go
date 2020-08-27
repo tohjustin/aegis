@@ -39,7 +39,7 @@ type Config struct {
 // Flags adds flags related to the application to the given flagset.
 func Flags(flags *flag.FlagSet) {
 	// server configs
-	port = flags.Uint(portCfg, 8080, "Port exposing badget service.")
+	port = flags.Uint(portCfg, 8080, "Port exposing badge service.")
 	readTimeout = flags.Uint(readTimeoutCfg, 2000, "Maximum duration in milliseconds for reading the entire request, including the body.")
 	writeTimeout = flags.Uint(writeTimeoutCfg, 2000, "Maximum duration in milliseconds before timing out writes of the response.")
 	excludeCacheControlHeaders = flags.Bool(excludeCacheControlHeadersCfg, false, "Flag to exclude HTTP Cache-Control headers from responses.")
