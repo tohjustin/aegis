@@ -1,6 +1,6 @@
 module github.com/tohjustin/aegis
 
-go 1.13
+go 1.16
 
 require (
 	github.com/bradleyjkemp/cupaloy v2.2.0+incompatible
