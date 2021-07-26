@@ -22,8 +22,8 @@ func generateErrorBadge(w http.ResponseWriter,
 		w.Header().Set("Cache-Control", "public, max-age=3600, s-maxage=3600")
 	}
 	w.Header().Set("Content-Type", "image/svg+xml;utf-8")
-	w.Write([]byte(generatedBadge))
-	return nil
+	_, err = w.Write([]byte(generatedBadge))
+	return err
 }
 
 // badRequest handles HTTP requests that are malformed

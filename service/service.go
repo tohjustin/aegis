@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -111,7 +112,7 @@ func (app *Application) execute() {
 		app.logger.Info("Received signal from OS", zap.String("signal", s.String()))
 
 		app.logger.Info("Starting shutdown...")
-		if err := httpServer.Shutdown(nil); err != nil {
+		if err := httpServer.Shutdown(context.Background()); err != nil {
 			app.logger.Error("Encountered error during shutdown", zap.Error(err))
 		}
 
@@ -145,7 +146,12 @@ func (app *Application) handler() http.Handler {
 	}
 	// return service-not-found badge for all unmatched routes
 	mux.PathPrefix("/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		serviceNotFound(w, app.config)
+		err := serviceNotFound(w, app.config)
+		if err != nil {
+			app.logger.Error("Failed to create error badge",
+				zap.String("url", r.URL.RequestURI()),
+				zap.Error(err))
+		}
 	}).Methods("GET")
 
 	return mux

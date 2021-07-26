@@ -282,5 +282,10 @@ func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		w.Header().Set("Cache-Control", "public, max-age=3600, s-maxage=3600")
 	}
 	w.Header().Set("Content-Type", "image/svg+xml;utf-8")
-	w.Write([]byte(generatedBadge))
+	_, err = w.Write([]byte(generatedBadge))
+	service.logger.Error("Failed to write HTTP response",
+		zap.String("url", r.URL.RequestURI()),
+		zap.String("service", service.name),
+		zap.String("method", method),
+		zap.Error(err))
 }

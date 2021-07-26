@@ -50,7 +50,7 @@ func runHTTPTest(t *testing.T, testCase httpTestCase) {
 
 	// Check response header
 	for fieldName, expectedFieldValue := range testCase.expectedHeaders {
-		if fieldValue := res.HeaderMap.Get(fieldName); fieldValue != expectedFieldValue {
+		if fieldValue := res.Result().Header.Get(fieldName); fieldValue != expectedFieldValue {
 			t.Errorf("handler returned wrong %v header: got %v want %v",
 				fieldName, fieldValue, expectedFieldValue)
 		}

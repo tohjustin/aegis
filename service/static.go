@@ -43,6 +43,7 @@ func (service *staticService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	})
 	if err != nil {
 		service.logger.Error("Failed to create badge",
+			zap.String("url", r.URL.RequestURI()),
 			zap.String("service", service.name),
 			zap.Error(err))
 		if err := internalServerError(w, service.config); err != nil {
@@ -60,5 +61,9 @@ func (service *staticService) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		w.Header().Set("Cache-Control", "public, max-age=3600, s-maxage=3600")
 	}
 	w.Header().Set("Content-Type", "image/svg+xml;utf-8")
-	w.Write([]byte(generatedBadge))
+	_, err = w.Write([]byte(generatedBadge))
+	service.logger.Error("Failed to write HTTP response",
+		zap.String("url", r.URL.RequestURI()),
+		zap.String("service", service.name),
+		zap.Error(err))
 }
