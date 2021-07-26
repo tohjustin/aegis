@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,7 +30,7 @@ func TestFormatIntegerWithMetricPrefix(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		t.Run(string(testCase.input), func(t *testing.T) {
+		t.Run(strconv.Itoa(testCase.input), func(t *testing.T) {
 			assert.Equal(t, testCase.expected, formatIntegerWithMetricPrefix(testCase.input))
 		})
 	}

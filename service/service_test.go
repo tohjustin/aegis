@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/tohjustin/aegis/service/config"
-	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 )
 
 type httpTestCase struct {
@@ -24,7 +24,7 @@ func runHTTPTest(t *testing.T, testCase httpTestCase) {
 	}
 
 	// TODO: Create proper mock dependencies & service generators
-	mockLogger := &zap.Logger{}
+	mockLogger := zaptest.NewLogger(t)
 	mockConfig := &config.Config{}
 	mockStaticService, err := NewStaticService(mockConfig, mockLogger)
 	if err != nil {
@@ -37,6 +37,9 @@ func runHTTPTest(t *testing.T, testCase httpTestCase) {
 
 	testServer := &Application{
 		info:             Info{},
+		logger:           mockLogger,
+		config:           mockConfig,
+		rootCmd:          nil,
 		staticService:    &mockStaticService,
 		bitbucketService: &mockGitProviderService,
 		githubService:    &mockGitProviderService,
