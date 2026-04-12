@@ -28,11 +28,11 @@ func runHTTPTest(t *testing.T, testCase httpTestCase) {
 	mockConfig := &config.Config{}
 	mockStaticService, err := NewStaticService(mockConfig, mockLogger)
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatal(err)
 	}
 	mockGitProviderService, err := NewGitlabService(mockConfig, mockLogger)
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatal(err)
 	}
 
 	testServer := &Application{

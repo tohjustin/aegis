@@ -1,7 +1,5 @@
 # build stage
-FROM golang:1.16-alpine AS builder
-
-ENV GO111MODULE=on
+FROM golang:1.26.2-alpine AS builder
 
 WORKDIR /app
 COPY go.mod .

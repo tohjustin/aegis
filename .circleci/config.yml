@@ -1,23 +1,26 @@
 version: 2.1
 jobs:
   build:
-    working_directory: ~/go/src/github.com/tohjustin/aegis
+    working_directory: ~/project
     docker:
-      - image: circleci/golang:1.16
+      - image: cimg/go:1.26.2
     steps:
       - checkout
+      - run:
+          name: Install make
+          command: sudo apt-get update && sudo apt-get install -y make
       - restore_cache:
           name: Restore Go Modules Cache
           keys:
             - go-mod-v1-{{ checksum "go.sum" }}
       - run:
           name: Download dependencies
-          command: go get -v -t -d ./...
+          command: go mod download
       - save_cache:
           name: Save Go Modules Cache
           key: go-mod-v1-{{ checksum "go.sum" }}
           paths:
-            - "/go/pkg/mod"
+            - /home/circleci/go/pkg/mod
       - run:
           name: Run Tests
           command: make cover
