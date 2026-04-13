@@ -1,3 +1,4 @@
+//go:build ignore
 // +build ignore
 
 package main
@@ -80,7 +81,7 @@ func run() error {
 
 				icons = append(icons, datum{
 					Name:  strings.TrimSuffix(strings.TrimPrefix(path, "assets/icons/"), ".svg"),
-					Value: string(svg),
+					Value: strings.ReplaceAll(string(svg), ` fill="currentColor"`, ``),
 				})
 			}
 
