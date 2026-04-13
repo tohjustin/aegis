@@ -283,9 +283,11 @@ func (service *bitbucketService) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	}
 	w.Header().Set("Content-Type", "image/svg+xml;utf-8")
 	_, err = w.Write([]byte(generatedBadge))
-	service.logger.Error("Failed to write HTTP response",
-		zap.String("url", r.URL.RequestURI()),
-		zap.String("service", service.name),
-		zap.String("method", method),
-		zap.Error(err))
+	if err != nil {
+		service.logger.Error("Failed to write HTTP response",
+			zap.String("url", r.URL.RequestURI()),
+			zap.String("service", service.name),
+			zap.String("method", method),
+			zap.Error(err))
+	}
 }
