@@ -11,11 +11,12 @@ func computeTextWidth(text string, fontSize int, fontFamily string) (int, error)
 	var charWidthTable []int
 	switch fontFamily {
 	case "Verdana":
-		if fontSize == 9 {
+		switch fontSize {
+		case 9:
 			charWidthTable = verdana9CharWidths[:]
-		} else if fontSize == 11 {
+		case 11:
 			charWidthTable = verdana11CharWidths[:]
-		} else {
+		default:
 			return 0, fmt.Errorf("unsupported font size: %d", fontSize)
 		}
 	default:

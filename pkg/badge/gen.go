@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
-	"io/ioutil"
 	"log"
 	"math"
 	"os"
@@ -54,7 +53,7 @@ func run() error {
 	if err := filepath.Walk("assets/templates",
 		func(path string, info os.FileInfo, walkErr error) error {
 			if !info.IsDir() && strings.HasSuffix(info.Name(), ".tmpl") {
-				tmpl, readFileErr := ioutil.ReadFile(path)
+				tmpl, readFileErr := os.ReadFile(path)
 				if readFileErr != nil {
 					return readFileErr
 				}
@@ -74,7 +73,7 @@ func run() error {
 	if err := filepath.Walk("assets/icons",
 		func(path string, info os.FileInfo, walkErr error) error {
 			if !info.IsDir() && strings.HasSuffix(info.Name(), ".svg") {
-				svg, readFileErr := ioutil.ReadFile(path)
+				svg, readFileErr := os.ReadFile(path)
 				if readFileErr != nil {
 					return readFileErr
 				}
@@ -111,7 +110,7 @@ func run() error {
 		}
 
 		fmt.Printf("writing %s...\n", filename)
-		err = ioutil.WriteFile(filename, out, 0644)
+		err = os.WriteFile(filename, out, 0644)
 		if err != nil {
 			return err
 		}
@@ -122,7 +121,7 @@ func run() error {
 
 func computeCharWidth(fontFamily string, fontSize int, character rune) (int, error) {
 	filePath := fmt.Sprintf("assets/fonts/%s.ttf", fontFamily)
-	ttf, err := ioutil.ReadFile(filePath)
+	ttf, err := os.ReadFile(filePath)
 	if err != nil {
 		return 0, fmt.Errorf("failed to open font file: %v", err)
 	}
