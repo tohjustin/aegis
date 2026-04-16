@@ -79,7 +79,6 @@ This project includes a [Makefile](Makefile) for testing and building the projec
 ❯ make help
 all                            Runs a clean, build, fmt, lint, test, staticcheck, vet and install
 build                          Builds a dynamic executable or package
-bump-version                   Bump the version in the version file. Set BUMP to [ patch | major | minor ]
 clean                          Cleanup any build binaries or packages
 cover                          Runs go test with coverage
 cross                          Builds the cross-compiled binaries, creating a clean directory structure (eg. GOOS/GOARCH/binary)
