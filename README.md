@@ -9,7 +9,7 @@
 <!-- [![GoDoc](https://godoc.org/github.com/tohjustin/aegis/pkg/badge?status.svg)](http://godoc.org/github.com/tohjustin/aegis/pkg/badge/) -->
 [![CI](https://github.com/tohjustin/aegis/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/tohjustin/aegis/actions/workflows/ci.yml)
 [![Font Awesome](https://aegisbadges.appspot.com/static?icon=brands/font-awesome&subject=Font%20Awesome&status=v7.2.0&color=318FE0)](https://fontawesome.com/)
-[![Release](https://aegisbadges.appspot.com/static?subject=release&status=v1.0.0)](https://github.com/tohjustin/aegis/releases)
+[![Release](https://aegisbadges.appspot.com/static?subject=release&status=v1.1.0)](https://github.com/tohjustin/aegis/releases)
 [![License](https://aegisbadges.appspot.com/static?subject=license&status=MIT)](https://opensource.org/licenses/MIT)
 
 Aegis is a SVG badge generation service, icons powered by [Font Awesome](https://fontawesome.com/https://fontawesome.com/).
@@ -97,7 +97,7 @@ To run the Aegis server locally, make sure to run `make all` or `make build` to 
 
 ```shell
 ❯ ./aegis --github-access-token $GITHUB_ACCESS_TOKEN
-{"level":"info","ts":1580194366.3114529,"caller":"service/service.go:71","msg":"Starting Aegis badge generation service...","Version":"1.0.0","GitHash":"7591664-dirty","NumCPU":4}
+{"level":"info","ts":1580194366.3114529,"caller":"service/service.go:71","msg":"Starting Aegis badge generation service...","Version":"v1.1.0","GitHash":"7591664-dirty","NumCPU":4}
 {"level":"info","ts":1580194366.3115368,"caller":"service/service.go:77","msg":"Initializing services..."}
 {"level":"info","ts":1580194366.3117702,"caller":"service/service.go:115","msg":"HTTP server listening...","Port":8080}
 ```
