@@ -12,7 +12,7 @@
 [![Release](https://aegisbadges.appspot.com/static?subject=release&status=v1.1.0)](https://github.com/tohjustin/aegis/releases)
 [![License](https://aegisbadges.appspot.com/static?subject=license&status=MIT)](https://opensource.org/licenses/MIT)
 
-Aegis is a SVG badge generation service, icons powered by [Font Awesome](https://fontawesome.com/https://fontawesome.com/).
+Aegis is a SVG badge generation service, icons powered by [Font Awesome](https://fontawesome.com/).
 
 ## Usage
 
