@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests with coverage
+        run: make cover
+
+      - name: Build project
+        run: make build
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage.txt
+          if-no-files-found: error
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+        with:
+          files: coverage.txt
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false

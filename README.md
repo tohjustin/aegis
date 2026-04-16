@@ -7,7 +7,7 @@
 <!-- [![Go Report Card](https://goreportcard.com/badge/github.com/tohjustin/aegis)](https://goreportcard.com/report/github.com/tohjustin/aegis) -->
 <!-- [![CodeCov](https://codecov.io/gh/tohjustin/aegis/branch/master/graph/badge.svg?token=HRJhI2JVS0)](https://codecov.io/gh/tohjustin/aegis) -->
 <!-- [![GoDoc](https://godoc.org/github.com/tohjustin/aegis/pkg/badge?status.svg)](http://godoc.org/github.com/tohjustin/aegis/pkg/badge/) -->
-[![CircleCI](https://circleci.com/gh/tohjustin/aegis/tree/master.svg?style=shield&circle-token=fbdca44ece1ce1c6e2a907a530476138578946a2)](https://circleci.com/gh/tohjustin/aegis/tree/master)
+[![CI](https://github.com/tohjustin/aegis/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/tohjustin/aegis/actions/workflows/ci.yml)
 [![Font Awesome](https://aegisbadges.appspot.com/static?icon=brands/font-awesome&subject=Font%20Awesome&status=v7.2.0&color=318FE0)](https://fontawesome.com/)
 [![Release](https://aegisbadges.appspot.com/static?subject=release&status=v1.0.0)](https://github.com/tohjustin/aegis/releases)
 [![License](https://aegisbadges.appspot.com/static?subject=license&status=MIT)](https://opensource.org/licenses/MIT)
