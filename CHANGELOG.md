@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Refactored the HTTP process onto stdlib `net/http`, `flag`, and `log/slog`, with a dedicated Prometheus registry and dual listeners (`:8080` app, `:9090` admin).
+- **Breaking:** replaced cobra flags. `-app-addr` / `-admin-addr` replace `--port`. Timeouts are Go durations (default 15s), not milliseconds. `-v` / `--version` replace the `version` subcommand.
+- Docker image is now distroless static non-root; GitHub token is read from `GITHUB_ACCESS_TOKEN` instead of a shell-wrapped `CMD`.
+- Make interface is now `build`, `test`, `test-e2e`, `lint`, `docker-build`, and related targets. Coverage/`codecov` CI upload was dropped in favor of vet, unit, e2e, lint, and docker buildx.
+
 ## [1.1.0] - 2026-04-16
 
 ### Added

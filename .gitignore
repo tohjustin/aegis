@@ -3,9 +3,11 @@
 *.dll
 *.so
 *.dylib
+bin/
 
 # Environment Variables
 *.env
+*.local.*
 
 # Test binary, build with `go test -c`
 *.test
@@ -31,6 +33,12 @@ coverage.html
 # Miscellaneous files
 *.sw[op]
 *.DS_Store
+
+# Local agent / harness state
+.cursor/
+.claude/
+.codex/
+.agent/
 
 # Deployment (GAE)
 .gcloudignore

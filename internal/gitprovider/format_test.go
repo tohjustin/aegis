@@ -1,16 +1,14 @@
-package service
+package gitprovider
 
 import (
 	"strconv"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
-func TestFormatIntegerWithMetricPrefix(t *testing.T) {
+func TestFormatCount(t *testing.T) {
 	t.Parallel()
 
-	testCases := []struct {
+	tests := []struct {
 		input    int
 		expected string
 	}{
@@ -29,9 +27,13 @@ func TestFormatIntegerWithMetricPrefix(t *testing.T) {
 		{112233445566, "112G"},
 	}
 
-	for _, testCase := range testCases {
-		t.Run(strconv.Itoa(testCase.input), func(t *testing.T) {
-			assert.Equal(t, testCase.expected, formatIntegerWithMetricPrefix(testCase.input))
+	for _, tt := range tests {
+		t.Run(strconv.Itoa(tt.input), func(t *testing.T) {
+			t.Parallel()
+			got := FormatCount(tt.input)
+			if got != tt.expected {
+				t.Errorf("FormatCount(%d) = %q, want %q", tt.input, got, tt.expected)
+			}
 		})
 	}
 }

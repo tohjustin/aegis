@@ -1,12 +1,13 @@
-package service
+// Package gitprovider fetches repository metrics from git forges.
+package gitprovider
 
 import (
 	"fmt"
 	"strconv"
 )
 
-// formatIntegerWithMetricPrefix formats an integer into a string with metric prefix
-func formatIntegerWithMetricPrefix(n int) string {
+// FormatCount formats an integer into a string with a metric prefix.
+func FormatCount(n int) string {
 	var metricPrefix string
 	var result float64
 	switch {

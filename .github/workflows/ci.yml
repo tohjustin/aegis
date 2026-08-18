@@ -5,22 +5,23 @@ on:
     branches:
       - main
       - master
+    tags:
+      - "v*"
   pull_request:
     branches:
       - main
       - master
-
-permissions:
-  contents: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
@@ -35,24 +36,78 @@ jobs:
       - name: Download dependencies
         run: go mod download
 
-      - name: Run tests with coverage
-        run: make cover
+      - name: Vet
+        run: make vet
 
-      - name: Build project
+      - name: Build
         run: make build
 
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage-report
-          path: coverage.txt
-          if-no-files-found: error
+      - name: Unit tests
+        run: make test
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+      - name: End-to-end tests
+        run: make test-e2e
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
         with:
-          files: coverage.txt
-          token: ${{ secrets.CODECOV_TOKEN }}
-          fail_ci_if_error: false
+          version: v2.4.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: aegis:ci
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            GIT_COMMIT=${{ github.sha }}
+
+  publish:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            GIT_COMMIT=${{ github.sha }}
+            GIT_TAG=${{ github.ref_name }}

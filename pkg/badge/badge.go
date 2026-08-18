@@ -189,7 +189,7 @@ func generateBadge(params *Params) (*badgeDimensions, error) {
 	newBadge.TotalWidth = newBadge.SubjectWidth + newBadge.StatusWidth
 
 	if newBadge.Template == nil {
-		return nil, fmt.Errorf("Badge template does not exist: %s", params.Style)
+		return nil, fmt.Errorf("badge template does not exist: %s", params.Style)
 	}
 
 	return &newBadge, nil
@@ -277,7 +277,7 @@ func ExtractParams(badge string) (*Params, error) {
 		}
 	}
 	if result.Style == "" {
-		return nil, fmt.Errorf("Unable to determine badge style")
+		return nil, fmt.Errorf("unable to determine badge style")
 	}
 
 	return result, nil

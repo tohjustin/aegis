@@ -1,0 +1,17 @@
+.git
+.github
+.cursor
+.claude
+.codex
+.agent
+docs
+test
+bin
+Makefile
+*.md
+*.local.*
+coverage.txt
+coverage.html
+.gitignore
+.golangci.yml
+deploy

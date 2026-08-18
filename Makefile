@@ -1,146 +1,78 @@
-# Makefile template obtained from: https://github.com/genuinetools
+BIN ?= bin/aegis
+IMAGE ?= aegis
+GO ?= go
+GOOS ?=
+GOARCH ?=
+PLATFORMS ?= linux/amd64 linux/arm64 darwin/amd64 darwin/arm64
 
-# Set an output prefix, which is the local directory if not specified
-PREFIX?=$(shell pwd)
+MODULE := github.com/tohjustin/aegis
+VERSION_PKG := $(MODULE)/internal/version
+VERSION ?= $(shell cat VERSION.txt 2>/dev/null || echo dev)
+BUILD_DATE ?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
+GIT_COMMIT ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo unknown)
+GIT_TAG ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo unknown)
+GIT_TREE_STATE ?= $(if $(shell git status --porcelain --untracked-files=no 2>/dev/null),dirty,clean)
 
-# Setup name variables for the package/tool
-NAME := aegis
-PKG := github.com/tohjustin/$(NAME)
+LDFLAGS := -s -w \
+	-X $(VERSION_PKG).Version=$(VERSION) \
+	-X $(VERSION_PKG).BuildDate=$(BUILD_DATE) \
+	-X $(VERSION_PKG).GitCommit=$(GIT_COMMIT) \
+	-X $(VERSION_PKG).GitTag=$(GIT_TAG) \
+	-X $(VERSION_PKG).GitTreeState=$(GIT_TREE_STATE)
 
-# Set any default go build tags
-BUILDTAGS :=
+.PHONY: check-deps build build-all run vet lint tidy test test-e2e test-all docker-build docker-run help
 
-# Set the build dir, where built cross-compiled binaries will be output
-BUILDDIR := ${PREFIX}/cross
+check-deps: ## Verify required tools are on PATH
+	@command -v $(GO) >/dev/null || { echo "go is required on PATH"; exit 1; }
+	@command -v golangci-lint >/dev/null || { echo "golangci-lint is required on PATH"; exit 1; }
 
-# Populate version variables
-# Add to compile time flags
-BUILD_INFO_IMPORT_PATH=$(PKG)/internal/version
-VERSION := $(shell cat VERSION.txt)
-GITHASH := $(shell git rev-parse --short HEAD)
-GITUNTRACKEDCHANGES := $(shell git status --porcelain --untracked-files=no)
-ifneq ($(GITUNTRACKEDCHANGES),)
-	GITHASH := $(GITHASH)-dirty
-endif
-CTIMEVAR=-X $(BUILD_INFO_IMPORT_PATH).GitHash=$(GITHASH) -X $(BUILD_INFO_IMPORT_PATH).Version=$(VERSION)
-GO_LDFLAGS=-ldflags "-w $(CTIMEVAR)"
-GO_LDFLAGS_STATIC=-ldflags "-w $(CTIMEVAR) -extldflags -static"
+build: ## Build the service binary
+	@mkdir -p $(dir $(BIN))
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o $(BIN) ./cmd/aegis
 
-# Set our default go compiler
-GO := go
+build-all: ## Cross-compile for linux/darwin amd64/arm64
+	@mkdir -p bin
+	@for platform in $(PLATFORMS); do \
+		os=$${platform%/*}; arch=$${platform#*/}; \
+		echo "building $$os/$$arch"; \
+		CGO_ENABLED=0 GOOS=$$os GOARCH=$$arch $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o bin/aegis-$$os-$$arch ./cmd/aegis; \
+	done
 
-# List the GOOS and GOARCH to build
-GOOSARCHES = $(shell cat .goosarch)
+run: build ## Build and run the service
+	$(BIN)
 
-.PHONY: generate
-generate:
-	@echo "+ $@"
-	$(GO) generate ./...
+vet: ## Run go vet
+	$(GO) vet ./...
 
-.PHONY: build
-build: $(NAME) ## Builds a dynamic executable or package
+lint: ## Run golangci-lint
+	@command -v golangci-lint >/dev/null || { echo "golangci-lint is required on PATH"; exit 1; }
+	golangci-lint run
 
-$(NAME): $(wildcard *.go) $(wildcard */*.go) VERSION.txt
-	@echo "+ $@"
-	$(GO) build -tags "$(BUILDTAGS)" ${GO_LDFLAGS} -o $(NAME) ./cmd/${NAME}
-
-.PHONY: static
-static: generate ## Builds a static executable
-	@echo "+ $@"
+tidy: ## Run go mod tidy
 	$(GO) mod tidy
-	CGO_ENABLED=0 $(GO) build \
-		-tags "$(BUILDTAGS) static_build" \
-		${GO_LDFLAGS_STATIC} -o $(NAME) ./cmd/${NAME}
 
-all: clean build fmt lint test staticcheck vet install ## Runs a clean, build, fmt, lint, test, staticcheck, vet and install
+test: ## Run unit tests
+	$(GO) test ./...
 
-.PHONY: fmt
-fmt: ## Verifies all files have been `gofmt`ed
-	@echo "+ $@"
-	@gofmt -s -l . | grep -v '.pb.go:' | grep -v vendor | tee /dev/stderr
+test-e2e: ## Run blackbox e2e tests against a real binary
+	$(GO) test -tags e2e -count=1 ./test/e2e/...
 
-.PHONY: lint
-lint: ## Verifies `golint` passes
-	@echo "+ $@"
-	@golint ./... | grep -v '.pb.go:' | grep -v vendor | tee /dev/stderr
+test-all: test test-e2e ## Run unit and e2e tests
 
-.PHONY: test
-test: ## Runs the go tests
-	@echo "+ $@"
-	@$(GO) test -v -tags "$(BUILDTAGS) cgo" $(shell $(GO) list ./... | grep -v vendor)
+docker-build: ## Build the container image
+	@command -v docker >/dev/null || { echo "docker is required on PATH"; exit 1; }
+	docker build \
+		--build-arg VERSION=$(VERSION) \
+		--build-arg BUILD_DATE=$(BUILD_DATE) \
+		--build-arg GIT_COMMIT=$(GIT_COMMIT) \
+		--build-arg GIT_TAG=$(GIT_TAG) \
+		--build-arg GIT_TREE_STATE=$(GIT_TREE_STATE) \
+		-t $(IMAGE) .
 
-.PHONY: vet
-vet: ## Verifies `go vet` passes
-	@echo "+ $@"
-	@$(GO) vet $(shell $(GO) list ./... | grep -v vendor) | grep -v '.pb.go:' | tee /dev/stderr
+docker-run: docker-build ## Run the container image
+	docker run --rm -p 8080:8080 -p 9090:9090 \
+		-e GITHUB_ACCESS_TOKEN=$(GITHUB_ACCESS_TOKEN) \
+		$(IMAGE)
 
-.PHONY: staticcheck
-staticcheck: ## Verifies `staticcheck` passes
-	@echo "+ $@"
-	@staticcheck $(shell $(GO) list ./... | grep -v vendor) | grep -v '.pb.go:' | tee /dev/stderr
-
-.PHONY: cover
-cover: ## Runs go test with coverage
-	@echo "" > coverage.txt
-	@for d in $(shell $(GO) list ./... | grep -v vendor); do \
-		$(GO) test -race -coverprofile=profile.out -covermode=atomic "$$d"; \
-		if [ -f profile.out ]; then \
-			cat profile.out >> coverage.txt; \
-			rm profile.out; \
-		fi; \
-	done;
-
-.PHONY: install
-install: ## Installs the executable or package
-	@echo "+ $@"
-	$(GO) install -a -tags "$(BUILDTAGS)" ${GO_LDFLAGS} .
-
-define buildpretty
-mkdir -p $(BUILDDIR)/$(1)/$(2);
-GOOS=$(1) GOARCH=$(2) CGO_ENABLED=0 $(GO) build \
-		-o $(BUILDDIR)/$(1)/$(2)/$(NAME) \
-		-a -tags "$(BUILDTAGS) static_build netgo" \
-		-installsuffix netgo ${GO_LDFLAGS_STATIC} .;
-md5sum $(BUILDDIR)/$(1)/$(2)/$(NAME) > $(BUILDDIR)/$(1)/$(2)/$(NAME).md5;
-sha256sum $(BUILDDIR)/$(1)/$(2)/$(NAME) > $(BUILDDIR)/$(1)/$(2)/$(NAME).sha256;
-endef
-
-.PHONY: cross
-cross: generate *.go VERSION.txt ## Builds the cross-compiled binaries, creating a clean directory structure (eg. GOOS/GOARCH/binary)
-	@echo "+ $@"
-	$(foreach GOOSARCH,$(GOOSARCHES), $(call buildpretty,$(subst /,,$(dir $(GOOSARCH))),$(notdir $(GOOSARCH))))
-
-define buildrelease
-GOOS=$(1) GOARCH=$(2) CGO_ENABLED=0 $(GO) build \
-	-o $(BUILDDIR)/$(NAME)-$(1)-$(2) \
-	-a -tags "$(BUILDTAGS) static_build netgo" \
-	-installsuffix netgo ${GO_LDFLAGS_STATIC} .;
-md5sum $(BUILDDIR)/$(NAME)-$(1)-$(2) > $(BUILDDIR)/$(NAME)-$(1)-$(2).md5;
-sha256sum $(BUILDDIR)/$(NAME)-$(1)-$(2) > $(BUILDDIR)/$(NAME)-$(1)-$(2).sha256;
-endef
-
-.PHONY: release
-release: *.go VERSION.txt ## Builds the cross-compiled binaries, naming them in such a way for release (eg. binary-GOOS-GOARCH)
-	@echo "+ $@"
-	$(foreach GOOSARCH,$(GOOSARCHES), $(call buildrelease,$(subst /,,$(dir $(GOOSARCH))),$(notdir $(GOOSARCH))))
-
-.PHONY: tag
-tag: ## Create a new git tag to prepare to build a release
-	git tag -sa $(VERSION) -m "$(VERSION)"
-	@echo "Run git push origin $(VERSION) to push your new tag to GitHub and trigger a circleci build."
-
-.PHONY: AUTHORS
-AUTHORS:
-	@$(file >$@,# This file lists all individuals having contributed content to the repository.)
-	@$(file >>$@,# For how it is generated, see `make AUTHORS`.)
-	@echo "$(shell git log --format='\n%aN <%aE>' | LC_ALL=C.UTF-8 sort -uf)" >> $@
-
-.PHONY: clean
-clean: ## Cleanup any build binaries or packages
-	@echo "+ $@"
-	rm -f $(NAME)
-	rm -rf $(BUILDDIR)
-
-.PHONY: help
-help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+help: ## Show this help
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-18s\033[0m %s\n", $$1, $$2}'

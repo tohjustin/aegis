@@ -73,34 +73,85 @@ Query parameters for configuring your badge appearance.
 
 ## Getting Started
 
-This project includes a [Makefile](Makefile) for testing and building the project. To see all available options:
-
-```
-❯ make help
-all                            Runs a clean, build, fmt, lint, test, staticcheck, vet and install
-build                          Builds a dynamic executable or package
-clean                          Cleanup any build binaries or packages
-cover                          Runs go test with coverage
-cross                          Builds the cross-compiled binaries, creating a clean directory structure (eg. GOOS/GOARCH/binary)
-fmt                            Verifies all files have been `gofmt`ed
-install                        Installs the executable or package
-lint                           Verifies `golint` passes
-release                        Builds the cross-compiled binaries, naming them in such a way for release (eg. binary-GOOS-GOARCH)
-static                         Builds a static executable
-staticcheck                    Verifies `staticcheck` passes
-tag                            Create a new git tag to prepare to build a release
-test                           Runs the go tests
-vet                            Verifies `go vet` passes
-```
-
-To run the Aegis server locally, make sure to run `make all` or `make build` to build the binary & execute it:
+A GitHub access token is required at process start (`GITHUB_ACCESS_TOKEN` or `-github-access-token`).
 
 ```shell
-❯ ./aegis --github-access-token $GITHUB_ACCESS_TOKEN
-{"level":"info","ts":1580194366.3114529,"caller":"service/service.go:71","msg":"Starting Aegis badge generation service...","Version":"v1.1.0","GitHash":"7591664-dirty","NumCPU":4}
-{"level":"info","ts":1580194366.3115368,"caller":"service/service.go:77","msg":"Initializing services..."}
-{"level":"info","ts":1580194366.3117702,"caller":"service/service.go:115","msg":"HTTP server listening...","Port":8080}
+make build
+./bin/aegis -github-access-token "$GITHUB_ACCESS_TOKEN"
 ```
+
+Or with Docker:
+
+```shell
+make docker-run GITHUB_ACCESS_TOKEN="$GITHUB_ACCESS_TOKEN"
+```
+
+### Make targets
+
+| Target | Description |
+| ------ | ----------- |
+| `check-deps` | Verify `go` and `golangci-lint` are on `PATH` |
+| `build` | Build `bin/aegis` (`CGO_ENABLED=0`, trimmed, version ldflags) |
+| `build-all` | Cross-compile linux/darwin amd64/arm64 |
+| `run` | Build and run |
+| `vet` | `go vet ./...` |
+| `lint` | `golangci-lint run` |
+| `tidy` | `go mod tidy` |
+| `test` | Unit tests |
+| `test-e2e` | Blackbox tests against a real binary |
+| `test-all` | Unit + e2e |
+| `docker-build` | Distroless static non-root image |
+| `docker-run` | Build and run, publishing 8080 and 9090 |
+
+### Endpoints
+
+| Listener | Path | Description |
+| -------- | ---- | ----------- |
+| app `:8080` | `GET /static` | Static badge |
+| app `:8080` | `GET /github/{method}/{owner}/{repo}` | GitHub badge |
+| app `:8080` | `GET /gitlab/{method}/{owner}/{repo}` | GitLab badge |
+| app `:8080` | `GET /bitbucket/{method}/{owner}/{repo}` | Bitbucket badge |
+| admin `:9090` | `GET /livez` | Liveness |
+| admin `:9090` | `GET /readyz` | Readiness |
+| admin `:9090` | `GET /metrics` | Prometheus metrics |
+| admin `:9090` | `GET /version` | Build metadata |
+
+### Configuration
+
+Precedence: built-in defaults → environment variables → CLI flags.
+
+| Flag | Env | Default | Description |
+| ---- | --- | ------- | ----------- |
+| `-app-addr` | `APP_ADDR` | `:8080` | Application listen address |
+| `-admin-addr` | `ADMIN_ADDR` | `:9090` | Admin listen address |
+| `-log-level` | `LOG_LEVEL` | `info` | `debug`, `info`, `warn`, `error` |
+| `-log-format` | `LOG_FORMAT` | `json` | `json` or `text` |
+| `-read-timeout` | `READ_TIMEOUT` | `15s` | Request read timeout |
+| `-read-header-timeout` | `READ_HEADER_TIMEOUT` | `5s` | Header read timeout |
+| `-write-timeout` | `WRITE_TIMEOUT` | `15s` | Response write timeout |
+| `-idle-timeout` | `IDLE_TIMEOUT` | `60s` | Keep-alive idle timeout |
+| `-shutdown-timeout` | `SHUTDOWN_TIMEOUT` | `15s` | Graceful shutdown timeout |
+| `-histogram-buckets` | `HISTOGRAM_BUCKETS` | Prometheus defaults | HTTP duration buckets |
+| `-exclude-cache-control-headers` | `EXCLUDE_CACHE_CONTROL_HEADERS` | `false` | Omit `Cache-Control` on badges |
+| `-root-redirect-url` | `ROOT_REDIRECT_URL` | empty | Redirect target for `GET /` |
+| `-github-access-token` | `GITHUB_ACCESS_TOKEN` | required | GitHub API token |
+| `-v` / `--version` | | | Print version and exit |
+
+### Layout
+
+```
+cmd/aegis/                 # process wiring and lifecycle
+internal/config/           # defaults → env → flags
+internal/observability/    # slog + Prometheus
+internal/server/           # app + admin HTTP
+internal/gitprovider/      # GitHub / GitLab / Bitbucket clients
+internal/version/          # ldflags-injected build info
+pkg/badge/                 # public SVG badge library
+test/e2e/                  # blackbox tests (//go:build e2e)
+deploy/kubernetes/         # Deployment, PDB, NetworkPolicy, ServiceMonitor
+```
+
+Kubernetes manifests live in [`deploy/kubernetes`](./deploy/kubernetes). The container image is `gcr.io/distroless/static-debian12:nonroot` (no shell, no Docker `HEALTHCHECK`; probes belong on `:9090`).
 
 ## License
 
