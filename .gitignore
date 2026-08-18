@@ -35,7 +35,8 @@ coverage.html
 *.DS_Store
 
 # Local agent / harness state
-.cursor/
+.cursor/*
+!.cursor/environment.json
 .claude/
 .codex/
 .agent/
